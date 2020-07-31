@@ -153,14 +153,13 @@ proj.ds <- function(x, maxit=1000, eps=1e-8)
 
 
 ###################################
-# Function to calculate the class 
+# Calculate the class 
 # probabilities P(I_ikl = 1 | X_i)
 ###################################
 
-class.probs <- function(x, mu, V, method = c("exact","approx"), maxit, eps)
+class.probs <- function(phi, method = c("exact","approx"), maxit, eps)
 {
 
-	phi <- norm.dens(x,mu,V)
 	m <- dim(phi)[1]
 	n <- dim(phi)[3]
 	eps <- 1e-10
@@ -317,7 +316,8 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 		V <- array(V[1:(p^2)],c(p,p,m))
 		
 	## Regularize covariance matrices if needed
-	V <- regularize.cov(V)
+	for (l in 1:m) 
+		V[,,l] <- regularize.cov(V[,,l])
 		
 	logL <- NA
 	
@@ -325,7 +325,8 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 				
 		## Log-likelihood	
 		logL.old <- logL
-		phi <- norm.dens(x,mu,V)
+		logphi <- norm.dens(x, mu, V, log=TRUE)
+		phi <- exp(logphi)
 		logL <- logLik(phi)
 		if (verbose) 
 			cat("Iteration:",count,"Log-likelihood:",logL,"\n")
@@ -347,14 +348,21 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 				tcrossprod(mu[,l])
 			V.tmp[,,l] <- regularize.cov(V.tmp[,,l])
 		}
+		if (equal.variance) 
+			V.tmp <- array(apply(V.tmp,1:2,mean),dim(V))
+			
 		# Check that covariance update increases Q function
 		logphi.tmp <- norm.dens(x, mu, V.tmp, log=TRUE)
-		for (l in 1:m) {
-			if (sum(log(phi[,,l]) * P[,,l]) < sum(logphi.tmp * P[,,l]))
-			V[,,l] <- V.tmp[,,l]		
+		if (equal.variance) {
+			if (sum(logphi * P) < sum(logphi.tmp * P))
+				V <- V.tmp	
+		} else {
+			for (l in 1:m) {
+				if (sum(logphi[,,l] * P[,,l]) < 
+					sum(logphi.tmp[,,l] * P[,,l]))
+					V[,,l] <- V.tmp[,,l]		
+			}
 		}
-		if (equal.variance) 
-			V <- array(apply(V,1:2,mean),dim(V))
 		
 	}
 	
