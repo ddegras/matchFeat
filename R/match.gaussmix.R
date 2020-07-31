@@ -1,10 +1,30 @@
 
 
-############################################
-# Function to calculate multivariate normal 
-# density values phi(x_ik,mu_l,V_l) up to 
-# determinant terms, with rescaling
-############################################
+#################################
+# Regularize covariance matrices
+#################################
+
+
+regularize.cov <- function(V, cond = 1e8)
+{
+	p <- nrow(V)
+	eigV <- 	eigen(V,TRUE)
+	lambda <- eigV$values		
+	test <- (lambda < lambda[1] / cond)
+	if (any(test)) {
+		lambda[test] <- lambda[1] / cond
+		P <- eigV$vectors
+		V <- tcrossprod(P * rep(sqrt(lambda), each=p))
+	}	
+	return(V)
+}
+
+
+
+####################################
+# Calculate multivariate normal 
+# density values phi(x_ik,mu_l,V_l) 
+####################################
 
 
 norm.dens <- function(x,mu,V,log=FALSE)
@@ -210,22 +230,16 @@ class.probs <- function(x, mu, V, method = c("exact","approx"), maxit, eps)
 
 
 
-#######################################
-# Function to calculate log-likelihood 
-# in Gaussian mixture model
-#######################################
+############################
+# Calculate log-likelihood 
+############################
 
 
-logLik <- function(x, mu, V)
+logLik <- function(phi)
 {
-	p <- nrow(mu)
-	m <- ncol(mu)
-	n <- ncol(x) / m
+	m <- dim(phi)[1]
+	n <- dim(phi)[3]
 	eps <- 1e-10
-	
-	## Multivariate normal values log(phi(x_ik,mu_l,V_l))
-	# phi <- norm.dens(x,mu,V,log=TRUE)
-	phi <- norm.dens(x,mu,V,log=FALSE)
 	
 	## Mixture density values and log-likelihood 
 	logL <- numeric(n)
@@ -301,13 +315,18 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 	} 
 	if (equal.variance) 
 		V <- array(V[1:(p^2)],c(p,p,m))
+		
+	## Regularize covariance matrices if needed
+	V <- regularize.cov(V)
+		
 	logL <- NA
 	
 	for (count in 1:maxit) {
 				
 		## Log-likelihood	
 		logL.old <- logL
-		logL <- logLik(x,mu,V)
+		phi <- norm.dens(x,mu,V)
+		logL <- logLik(phi)
 		if (verbose) 
 			cat("Iteration:",count,"Log-likelihood:",logL,"\n")
 			
@@ -316,15 +335,23 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 			count == maxit) break		
 
 		## E step
-		P <- class.probs(x,mu,V,method,maxit.proj,eps.proj)
+		P <- class.probs(phi,method,maxit.proj,eps.proj)
 
 		## M step
+		V.tmp <- array(dim=c(p,p,m))
 		for (l in 1:m) {
 			Pl <- P[,l,] / sum(P[,l,])
 			dim(Pl) <- NULL
 			mu[,l] <- x %*% Pl 	
-			V[,,l] <- tcrossprod(x * matrix(sqrt(Pl),p,m*n,byrow=T)) - 
+			V.tmp[,,l] <- tcrossprod(x * matrix(sqrt(Pl),p,m*n,byrow=T)) - 
 				tcrossprod(mu[,l])
+			V.tmp[,,l] <- regularize.cov(V.tmp[,,l])
+		}
+		# Check that covariance update increases Q function
+		logphi.tmp <- norm.dens(x, mu, V.tmp, log=TRUE)
+		for (l in 1:m) {
+			if (sum(log(phi[,,l]) * P[,,l]) < sum(logphi.tmp * P[,,l]))
+			V[,,l] <- V.tmp[,,l]		
 		}
 		if (equal.variance) 
 			V <- array(apply(V,1:2,mean),dim(V))
