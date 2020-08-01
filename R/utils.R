@@ -36,8 +36,8 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 			# Check dimensions of mu and V if specified
 			m <- as.integer(freq[1])
 			n <- length(freq)
-			p <- NCOL(x)	
 		}
+		p <- ncol(x)
 		x <- t(x)
 	} else {		
 	## Case: x specified as array	
