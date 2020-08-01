@@ -1,1 +1,2 @@
+importFrom(foreach,foreach)
 export(match.bca, match.gaussmix, match.kmeans, match.template)

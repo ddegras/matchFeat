@@ -1,16 +1,37 @@
 
 
-############################################
-# Function to calculate multivariate normal 
-# density values phi(x_ik,mu_l,V_l) up to 
-# determinant terms, with rescaling
-############################################
+#################################
+# Regularize covariance matrices
+#################################
+
+
+regularize.cov <- function(V, cond = 1e8)
+{
+	p <- nrow(V)
+	eigV <- 	eigen(V,TRUE)
+	lambda <- eigV$values		
+	test <- (lambda < lambda[1] / cond)
+	if (any(test)) {
+		lambda[test] <- lambda[1] / cond
+		P <- eigV$vectors
+		V <- tcrossprod(P * rep(sqrt(lambda), each=p))
+	}	
+	return(V)
+}
+
+
+
+####################################
+# Calculate multivariate normal 
+# density values phi(x_ik,mu_l,V_l) 
+####################################
 
 
 norm.dens <- function(x,mu,V,log=FALSE)
 {
 	m <- ncol(mu)
 	n <- ncol(x)/m
+	p <- nrow(x)
 	phi <- array(dim=c(m,m,n))
 	for (l in 1:m) {
 		R <- tryCatch(chol(V[,,l]), error=function(e) NULL)
@@ -54,6 +75,7 @@ norm.dens <- function(x,mu,V,log=FALSE)
 
 scale.rc <- function(x, niter = NULL)
 {
+	if (length(x) == 1) return(1)
 	m <- nrow(x)
 	n <- ncol(x)
 	if (is.null(niter)) niter <- max(m,n)
@@ -75,7 +97,7 @@ scale.rc <- function(x, niter = NULL)
 
 ryser.perm <- function(A)
 {
-	# if (length(A) == 1) return(A)
+	if (length(A) == 1) return(A)
 	n <- ncol(A)
 	rsum <- rowSums(A)
 	csum <- colSums(A)
@@ -94,6 +116,29 @@ ryser.perm <- function(A)
 	if (per > 0) return(per) else return(min(ub1,prod(csum)))
 }
 
+
+all.perm <- function(A, eps = 1e-10) 
+{
+	m <- NCOL(A)
+	if (m == 1) return(A)
+	if (all(A == 0)) return(matrix(1/m,m,m))
+	nzr <- (rowSums(A) > 0)
+	nzc <- (colSums(A) > 0)
+	A[nzr,nzc] <- scale.rc(A[nzr,nzc])
+	rmax <- apply(A,1,max)
+	cmax <- apply(A,2,max)
+	nz <- (A >= (eps*rmax)) | (A >= matrix(eps*cmax,m,m,TRUE))
+	if (all(rowSums(nz) == 1 & colSums(nz) == 1))
+		{ A[nz] <- 1; A[!nz] <- 0; return(A) }
+	out <- matrix(0,m,m)
+	for (k in 1:m) {
+		for (l in 1:m) {
+			if (A[k,l] > 0) 
+				out[k,l] <- A[k,l] * ryser.perm(A[-k,-l])
+		}
+	}
+	return(out)
+}
 
 
 ####################################################################
@@ -133,45 +178,53 @@ proj.ds <- function(x, maxit=1000, eps=1e-8)
 
 
 ###################################
-# Function to calculate the class 
+# Calculate the class 
 # probabilities P(I_ikl = 1 | X_i)
 ###################################
 
-class.probs <- function(x, mu, V, method = c("exact","approx"), maxit, eps)
+class.probs <- function(phi, method = c("exact","approx"), 
+	maxit, eps, parallel)
 {
 
-	phi <- norm.dens(x,mu,V)
 	m <- dim(phi)[1]
 	n <- dim(phi)[3]
-	eps <- 1e-10
+	eps0 <- 1e-10
 	method <- match.arg(method)
 	out <- array(0,dim=c(m,m,n))
 	
 	if (method == "exact") {
-		for (i in 1:n) {
-			A <- phi[,,i]
-			rmax <- apply(A,1,max)
-			cmax <- apply(A,2,max)
-			nz <- (A >= (eps*rmax)) | (A >= matrix(eps*cmax,m,m,TRUE))
-			if (all(rowSums(nz) == 1 & colSums(nz) == 1))
-				{ A[nz] <- 1; A[!nz] <- 0; out[,,i] <- A; next }
-			nzr <- (rmax > 0)
-			nzc <- (cmax > 0)
-			if (all(!nzr)) { out[,,i] <- 1/m; next }
-			A[nzr,nzc] <- scale.rc(A[nzr,nzc,drop=F])
-			for (k in 1:m) {
-				for (l in 1:m) {
-					if (A[k,l] > 0) 
-						out[k,l,i] <- A[k,l] * ryser.perm(A[-k,-l,drop=F])
-				}
-			}
+		if (parallel) {
+			out <- foreach(i = 1:n, 
+				.packages = "matchFeats") %dopar% all.perm(phi[,,i], eps0)
+			out <- unlist(out)
+		} else {
+			out <- apply(phi, 3, all.perm, eps=eps0)
 		}
+		dim(out) <- c(m,m,n)
+
+			# A <- phi[,,i]
+			# rmax <- apply(A,1,max)
+			# cmax <- apply(A,2,max)
+			# nz <- (A >= (eps0*rmax)) | (A >= matrix(eps0*cmax,m,m,TRUE))
+			# if (all(rowSums(nz) == 1 & colSums(nz) == 1))
+				# { A[nz] <- 1; A[!nz] <- 0; out[,,i] <- A; next }
+			# nzr <- (rmax > 0)
+			# nzc <- (cmax > 0)
+			# if (all(!nzr)) { out[,,i] <- 1/m; next }
+			# A[nzr,nzc] <- scale.rc(A[nzr,nzc,drop=F])
+			# for (k in 1:m) {
+				# for (l in 1:m) {
+					# if (A[k,l] > 0) 
+						# out[k,l,i] <- A[k,l] * ryser.perm(A[-k,-l,drop=F])
+				# }
+			# }
+		# }
 	} else if (method == "approx") {
 		for (i in 1:n) {
 			A <- phi[,,i]
 			rmax <- apply(A,1,max)
 			cmax <- apply(A,2,max)
-			nz <- (A >= (eps*rmax)) | (A >= matrix(eps*cmax,m,m,TRUE))
+			nz <- (A >= (eps0*rmax)) | (A >= matrix(eps0*cmax,m,m,TRUE))
 			if (all(rowSums(nz) == 1 & colSums(nz) == 1))
 				{ A[nz] <- 1; A[!nz] <- 0; out[,,i] <- A; next }
 			if (all(!nzr)) { out[,,i] <- 1/m; next }
@@ -210,42 +263,47 @@ class.probs <- function(x, mu, V, method = c("exact","approx"), maxit, eps)
 
 
 
-#######################################
-# Function to calculate log-likelihood 
-# in Gaussian mixture model
-#######################################
+############################
+# Calculate log-likelihood 
+############################
 
 
-logLik <- function(x, mu, V)
+logLik <- function(phi, parallel)
 {
-	p <- nrow(mu)
-	m <- ncol(mu)
-	n <- ncol(x) / m
+	m <- dim(phi)[1]
+	n <- dim(phi)[3]
 	eps <- 1e-10
 	
-	## Multivariate normal values log(phi(x_ik,mu_l,V_l))
-	# phi <- norm.dens(x,mu,V,log=TRUE)
-	phi <- norm.dens(x,mu,V,log=FALSE)
-	
 	## Mixture density values and log-likelihood 
-	logL <- numeric(n)
-	for (i in 1:n) {
-		# sigma <- clue::solve_LSAP(phi[,,i]-min(phi[,,i]),TRUE)
-		# maxval <- sum(phi[cbind(1:m,sigma,rep(i,m))]) 
-		# z <- exp(phi[,,i] - maxval/m)
-		# logL[i] <- log(ryser.perm(z)) + maxval  
+	if (parallel) {
+		logL <- 	foreach(i = 1:n, .packages="matchFeats", 
+			.combine=c) %dopar% {
 		A <- phi[,,i]
 		rmax <- apply(A,1,max)
 		cmax <- apply(A,2,max)
 		if (any(rmax == 0 | cmax == 0))
-			{logL[i] <- -Inf; next}
+			return(-Inf)
 		nz <- (A >= (eps*rmax)) | (A >= matrix(eps*cmax,m,m,TRUE))
 		if (all(rowSums(nz) == 1 & colSums(nz) == 1))
-			{logL[i] <- sum(log(A[nz])); next}
+			return(sum(log(A[nz])))
 		rsum <- rowSums(A)
-		logL[i] <- log(ryser.perm(A/rsum)) + sum(log(rsum))
+			return(log(ryser.perm(A/rsum)) + sum(log(rsum))) }
+	} else {
+		logL <- numeric(n)
+		for (i in 1:n) {
+			A <- phi[,,i]
+			rmax <- apply(A,1,max)
+			cmax <- apply(A,2,max)
+			if (any(rmax == 0 | cmax == 0))
+				{logL[i] <- -Inf; next}
+			nz <- (A >= (eps*rmax)) | (A >= matrix(eps*cmax,m,m,TRUE))
+			if (all(rowSums(nz) == 1 & colSums(nz) == 1))
+				{logL[i] <- sum(log(A[nz])); next}
+			rsum <- rowSums(A)
+			logL[i] <- log(ryser.perm(A/rsum)) + sum(log(rsum))
+		}
 	}
-
+	
 	test <- is.infinite(logL)
 	if (any(test)) logL[test] <- min(logL[!test]) 
 	logL <- sum(logL) - n*sum(log(1:m))
@@ -279,7 +337,7 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 	rm(pre)
 			
 	## Tuning parameters
-	con <- list(maxit=1e4, eps=1e-8, verbose=FALSE)
+	con <- list(maxit=1e4, eps=1e-8, parallel=FALSE, verbose=FALSE)
 	if (length(control) > 0) {
 		name <- intersect(names(control), names(con))
 		con[name] <- control[name]	
@@ -301,13 +359,20 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 	} 
 	if (equal.variance) 
 		V <- array(V[1:(p^2)],c(p,p,m))
+		
+	## Regularize covariance matrices if needed
+	for (l in 1:m) 
+		V[,,l] <- regularize.cov(V[,,l])
+		
 	logL <- NA
 	
 	for (count in 1:maxit) {
 				
 		## Log-likelihood	
 		logL.old <- logL
-		logL <- logLik(x,mu,V)
+		logphi <- norm.dens(x, mu, V, log=TRUE)
+		phi <- exp(logphi)
+		logL <- logLik(phi, parallel)
 		if (verbose) 
 			cat("Iteration:",count,"Log-likelihood:",logL,"\n")
 			
@@ -316,18 +381,33 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 			count == maxit) break		
 
 		## E step
-		P <- class.probs(x,mu,V,method,maxit.proj,eps.proj)
+		P <- class.probs(phi,method,maxit.proj,eps.proj, parallel)
 
 		## M step
+		V.tmp <- array(dim=c(p,p,m))
 		for (l in 1:m) {
 			Pl <- P[,l,] / sum(P[,l,])
 			dim(Pl) <- NULL
 			mu[,l] <- x %*% Pl 	
-			V[,,l] <- tcrossprod(x * matrix(sqrt(Pl),p,m*n,byrow=T)) - 
+			V.tmp[,,l] <- tcrossprod(x * matrix(sqrt(Pl),p,m*n,byrow=T)) - 
 				tcrossprod(mu[,l])
+			V.tmp[,,l] <- regularize.cov(V.tmp[,,l])
 		}
 		if (equal.variance) 
-			V <- array(apply(V,1:2,mean),dim(V))
+			V.tmp <- array(apply(V.tmp,1:2,mean),dim(V))
+			
+		# Check that covariance update increases Q function
+		logphi.tmp <- norm.dens(x, mu, V.tmp, log=TRUE)
+		if (equal.variance) {
+			if (sum(logphi * P) < sum(logphi.tmp * P))
+				V <- V.tmp	
+		} else {
+			for (l in 1:m) {
+				if (sum(logphi[,,l] * P[,,l]) < 
+					sum(logphi.tmp[,,l] * P[,,l]))
+					V[,,l] <- V.tmp[,,l]		
+			}
+		}
 		
 	}
 	
