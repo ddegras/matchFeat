@@ -51,7 +51,7 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 		p <- dim.x[1]
 		m <- dim.x[2]
 		n <- dim.x[3]
-		dim(x) <- c(p*m,n)		
+		dim(x) <- c(p,m*n)		
 	}
 
 	## Check mu and V if provided
