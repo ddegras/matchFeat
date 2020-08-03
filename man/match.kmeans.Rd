@@ -64,21 +64,21 @@ Degras and Chen (2020). One-to-one feature matching under association ambiguity.
 
 \examples{
 ## Generate data
-  m <- 3
-  n <- 10
-  p <- 5
-  mu <- matrix(rnorm(p*m),p,m)
-  sigma <- 0.1
-  x <- array(mu + rnorm(p*m*n,sigma), c(p,m,n))
+m <- 3
+n <- 10
+p <- 5
+mu <- matrix(rnorm(p*m),p,m)
+sigma <- 0.1
+x <- array(mu + rnorm(p*m*n,sigma), c(p,m,n))
 
 ## Match all feature vectors
-  result <- match.kmeans(x)
+result <- match.kmeans(x)
 
 ## Display results 
-  result$cost # cost function
-  xmatched <- array(dim=dim(x)) 
+result$cost # cost function
+xmatched <- array(dim=dim(x)) 
   
 ## re-arranged (matched) feature vectors
-  for (i in 1:n){
-	  xmatched[,,i] <- x[,result$sigma[,i],i]}
+for (i in 1:n){
+  xmatched[,,i] <- x[,result$sigma[,i],i]}
 }

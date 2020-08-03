@@ -63,12 +63,15 @@ d <- 5
 mu <- matrix(1:k, nrow=d, ncol=k, byrow=TRUE)
 sigma <- 0.3
 x <- array(mu, c(d,k,n)) + rnorm(d*k*n,sigma)
+
 ## Match all feature vectors with first case as template
 result <- match.template(x,1)
+
 ## Display results 
 result$cost # cost function
 xmatched <- array(dim=dim(x)) 
+
 # re-arranged (matched) feature vectors
-for (i in 1:n)
-	xmatched[,,i] <- x[,result$sigma[,i],i]
+for (i in 1:n){
+    xmatched[,,i] <- x[,result$sigma[,i],i]
 }
