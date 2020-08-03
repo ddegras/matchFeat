@@ -1,0 +1,192 @@
+---
+title: "An Introduction to ‘matchFeats’"
+author: "David Degras and Yiming Shen"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{An Introduction to matchFeats}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette presents a in-depth overview of the `matchFeats` package.
+
+The `matchFeats` package's name is `One-To-One Feature Matching Under Association Ambiguity`. The package will provide four main functions which are Gaussian Mixture Approach(`match.gaussmix`), K-Means-Like Method(`match.kmeans`), Template-Based Method(`match.template`) and Block Coordinate Ascent Method(`match.bca`).
+
+
+
+## Installation
+
+If you would like to install the development version of `matchFeats`, you may do so
+by using, for example, `devtools`:
+
+``` {r eval = F} 
+# install.packages("devtools")
+install.packages("clue") # run this line if you don’t have package 'clue' installed yet
+install.packages("foreach") # run this line if you don’t have package 'foreach' installed yet
+install.packages("devtools") # run this line if you don’t have package 'devtools' installed yet
+library(devtools)
+devtools::install_github("ddegras/matchFeats")
+```
+
+After successful installation, we’ll start by loading `matchFeats`:
+```{r}
+library(matchFeats)
+```
+
+## Details
+
+The kinds of statistical methods to match feature vectors between sample units under association ambiguity. Applications include object tracking, video surveillance, remote sensing as well as multilevel modeling. Given a fixed number of classes/distributions, for each unit, exactly one vector of each class is observed without label. The goal is to label the feature vectors using each label exactly once so to produce the best match across units, e.g. by minimizing the variability within classes. Several statistical solutions based on empirical loss functions and probabilistic modeling are provided.
+
+Below we will give an overview of all those statistical methods and, further in the document, we will present some usage examples.
+
+## Processing data description 
+
+The functions will process **n** matrixes which like the **c** columns and **r** rows:
+
+```{r}
+## Generate data
+n <- 5
+c <- 3
+r <- 5
+mu <- matrix(1:c, nrow=r, ncol=c, byrow=TRUE)
+sigma <- 0.3
+x <- array(mu, c(r,c,n)) + rnorm(r*c*n,sigma)
+x
+```
+
+
+## Functions 
+
+### Block Coordinate Ascent Method(`match.bca`)
+
+#### Details
+
+Given a set of \eqn{n} statistical units, each having \eqn{m} possibly mislabeled feature vectors, the one-to-one matching problem is to find a set of \eqn{n} label permutations that produce the best match of feature vectors across units. The objective function to minimize is the sum of (weighted) squared Euclidean distances between all pairs of feature vectors having the same (new) label. This amounts to minimizing the sum of the within-label variances.  
+The sample means and sample covariances of the matched feature vectors are calculated as a post-processing step.  
+	
+The block-coordinate ascent (BCA) algorithm successively sweeps through the statistical units (=blocks), each time relabeling the \eqn{m} feature vectors of a unit to best match those of the other \eqn{n-1} units. 
+
+If \code{x} is a matrix, the rows should be sorted by increasing unit label and  \code{unit} should be a nondecreasing sequence of integers, for example \eqn{(1,...,1,2,...,2,...,n,...,n)} with each integer \eqn{1,...,n} replicated \eqn{m} times. 
+
+The argument \code{w} can be specified as a vector of positive numbers (will be recycled to length \eqn{p} if needed) or as a positive definite matrix of size \eqn{(p,p)}.
+
+To calculate a common sample covariance for all matched feature vectors, set \code{equal.variance} to TRUE; otherwise (FALSE) one sample covariance matrix is calculated for each label/class. 
+
+The optional argument \code{control} is a list with two fields: \code{sigma}, starting point for the optimization (\eqn{(m,n)} matrix of permutations; and \code{maxit}, maximum number of iterations/sweeps. 
+
+#### Example
+
+```{r}
+match.bca(x)
+```
+
+
+### Gaussian Mixture Approach(`match.gaussmix`)
+
+#### Details
+
+Given a sample of n statistical units, each having m possibly mislabeled feature vectors, the one-to-one matching problem is to find a set of n label permutations that produce the best match of feature vectors across units. This problem is sometimes referred to as "data association ambiguity".
+
+The feature vectors of all units are represented as independent realizations of m multivariate normal distributions with unknown parameters. For each sample unit, exactly one vector from each distribution is observed and the m corresponding labels are randomly permuted. The goal is to estimate the true class of each feature vector, as well as the mean vector and covariance matrix of each distribution. These quantities are evaluated by ML estimation via the Expectation-Maximization (EM) algorithm.
+
+If x is a matrix, the rows should be sorted by increasing unit label and unit should be a nondecreasing sequence of integers, for example (1,...,1,2,...,2,...,n,...,n) with each integer 1,...,n replicated m times.
+
+The arguments mu and V should be specified only if a good guess is available for these parameters. Otherwise bad starting values may cause the EM algorithm to converge to a local maximum of the likelihood function quite far from the global maximum.
+
+If method is set to exact (default), the class probabilities of the feature vectors (given the data) are calculated exactly at each iteration of the EM algorithm. This operation can be slow as it involves calculating the permanent of matrices. The argument method can be set to approximate to speed up calculations, but this option is not recommended in general as the approximations used are very crude and may produce "bad" EM solutions.
+
+The optional argument control can be specified with these fields: maxit, maximum number of EM iterations (default=1e4); eps, relative tolerance for EM convergence (default=1e-8), the EM algorithm stops if the relative increase in log-likelihood between two iterations is less than this tolerance; verbose, set to TRUE to display algorithm progress (default=FALSE).
+
+#### Example
+
+```{r}
+match.gaussmix(x)
+
+```
+
+
+
+
+### K-Means-Like Method(`match.kmeans`)
+
+#### Details
+
+Given a sample of \eqn{n} statistical units, each having \eqn{m} possibly mislabeled feature vectors, the one-to-one matching problem is to find a set of \eqn{n} label permutations that produce the best match of feature vectors across units. This problem is sometimes referred to as "data association ambiguity". 
+
+The feature vectors of all units are represented as independent realizations of \eqn{m} multivariate normal distributions with unknown parameters. For each sample unit, exactly one vector from each distribution is observed and the \eqn{m} corresponding labels are randomly permuted. The goal is to estimate the true class of each feature vector, as well as the mean vector and covariance matrix of each distribution. These quantities are evaluated by ML estimation via the Expectation-Maximization (EM) algorithm. 
+
+If \code{x} is a matrix, the rows should be sorted by increasing unit label and  \code{unit} should be a nondecreasing sequence of integers, for example \eqn{(1,...,1,2,...,2,...,n,...,n)} with each integer \eqn{1,...,n} replicated \eqn{m} times. 
+
+The arguments \code{mu} and \code{V} should be specified only if a good guess is available for these parameters. Otherwise bad starting values may cause the EM algorithm to converge to a local maximum of the likelihood function quite far from the global maximum. 
+
+If \code{method} is set to \code{exact} (default), the class probabilities of the feature vectors (given the data) are calculated exactly at each iteration of the EM algorithm. This operation can be slow as it involves calculating the permanent of matrices. The argument \code{method} can be set to \code{approximate} to speed up calculations, but this option is not recommended in general as the approximations used are very crude and may produce "bad" EM solutions. 
+
+The optional argument \code{control} can be specified with these fields: 
+\code{maxit}, maximum number of EM iterations (default=1e4); 
+\code{eps}, relative tolerance for EM convergence (default=1e-8), 
+the EM algorithm stops if the relative increase in log-likelihood between two iterations is less than this tolerance; \code{verbose}, set to TRUE to display
+ algorithm progress (default=FALSE). 
+
+#### Example
+
+Import matrixes, then:
+```{r}
+## Match all feature vectors
+  result <- match.kmeans(x)
+
+## Display results 
+  result$cost # cost function
+  xmatched <- array(dim=dim(x)) 
+  
+## re-arranged (matched) feature vectors
+  for (i in 1:n){
+	  xmatched[,,i] <- x[,result$sigma[,i],i]}
+```
+
+### Template-Based Method(`match.template`)
+
+#### Details
+
+Given a sample of \eqn{n} statistical units, each having \eqn{m} possibly mislabeled feature vectors, the one-to-one matching problem is to find a set of \eqn{n} label permutations that produce the best match of feature vectors across units. The objective function to minimize is the sum of squared (Euclidean) distances between all feature vectors having the same (new) label. This amounts to minimizing the sum of the within-label variances.  
+	
+The template-based method consists in relabeling successively each sample unit to best match a template matrix of feature vectors. This method is very fast but its optimization performance is only as good as the template. A template that is typical or representative of the collected data. 
+
+If \code{x} is a matrix, the rows should be sorted by increasing unit label and  \code{unit} should be a nondecreasing sequence of integers, for example \eqn{(1,...,1,2,...,2,...,n,...,n)} with each integer \eqn{1,...,n} replicated \eqn{m} times. 
+
+The argument \code{w} can be specified as a vector of positive numbers (will be recycled to length \eqn{p} if needed) or as a positive definite matrix of size \eqn{(p,p)}.
+
+#### Example
+
+Import matrixes, then:
+```{r}
+## Match all feature vectors with first case as template
+result <- match.template(x,1)
+
+## Display results 
+result$cost # cost function
+xmatched <- array(dim=dim(x)) 
+
+# re-arranged (matched) feature vectors
+for (i in 1:n){
+	xmatched[,,i] <- x[,result$sigma[,i],i]
+}
+
+```
+
+## Handwriting example project
+
+The data comes from UCI - Optical Recognition of Handwritten Digits Data Set which used to test matchFeats packages. 
+There are 3823 training data and 1797 testing data in this handwritten digits data set example projec.  Each data set has 
+```{r}
+train_url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/optdigits/optdigits.tra"
+train <- read.table(train_url,sep = ",")
+str(train)
+```
+
+
+## References
+
+* [Degras and Shen (2020). One-to-one feature matching under association ambiguity.](web)
