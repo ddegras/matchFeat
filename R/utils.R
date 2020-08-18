@@ -4,6 +4,10 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 	if (length(dim(x)) < 3) {
 	## Case: x specified as matrix
 	if (is.vector(x)) dim(x) <- c(length(x),1)
+	if (!is.matrix(x)) x <- as.matrix(x)
+	if (any(is.infinite(x) | is.na(x)))
+		stop(paste("Please make sure that 'x' does not contain missing",
+		"or infinite values"))
 		# Check that 'unit' is not NULL 
 		if (is.null(unit)) 
 			stop(paste("Please provide 'x' as an array of dimensions",
@@ -52,6 +56,9 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 		m <- dim.x[2]
 		n <- dim.x[3]
 		dim(x) <- c(p,m*n)		
+		if (any(is.infinite(x) | is.na(x)))
+			stop(paste("Please make sure that 'x' does not contain",
+			 	"missing or infinite values"))
 	}
 
 	## Check mu and V if provided
