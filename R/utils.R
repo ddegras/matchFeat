@@ -1,7 +1,6 @@
 preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 {
 
-	if (any)
 	if (length(dim(x)) < 3) {
 	## Case: x specified as matrix
 	if (is.vector(x)) dim(x) <- c(length(x),1)

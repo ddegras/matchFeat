@@ -367,11 +367,11 @@ logLik <- function(phi, parallel)
 
 check.set.equality <- function(x,n,cond)
 {	
-	p <- NROW(x)
+	p <- nrow(x)
 	mn <- ncol(x)
 	m <- mn/n
-	out <- list(V=array(diag(1/cond,p,p),c(p,p,m)), loglik=Inf, 
-		P=matrix(1,m,n))
+	out <- list(sigma=NULL, P=matrix(1,m,n), mu=NULL, 
+		V=array(diag(1/cond,p,p),c(p,p,m)), loglik=Inf)
 	
 	## Test if all vectors are identical
 	if (all(x[,1:(mn-1)] == x[,2:mn])) {	
