@@ -1,2 +1,4 @@
 importFrom(foreach,foreach)
 export(match.bca, match.gaussmix, match.kmeans, match.template)
+S3method(print,matchFeats)
+S3method(summary,matchFeats)

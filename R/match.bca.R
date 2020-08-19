@@ -9,6 +9,7 @@ match.bca <- function(x, unit = NULL, w=NULL, equal.variance=FALSE,
 	R <- pre$R # Cholesky decomposition of w or null
 	x <- pre$x; dim(x) <- c(p,m,n)
 	rm(pre)
+	syscall <- sys.call()
 	
 	## Tuning parameters
 	sigma <- matrix(1:m,m,n)
@@ -45,8 +46,6 @@ match.bca <- function(x, unit = NULL, w=NULL, equal.variance=FALSE,
 	## Ensure that data are non-negative
 	xmin <- min(x)
 	if (xmin < 0) x <- x - xmin
-
-
 
 	## Sweeping method
 	method <- match.arg(method)			
@@ -121,8 +120,19 @@ match.bca <- function(x, unit = NULL, w=NULL, equal.variance=FALSE,
 			dim(V) <- c(p,p,m)	
 		}		
  	}
+ 	
+ 	## Sums of squares for unmatched data
+ 	xbarl <- matrix(,p,m)
+ 	for (l in 1:m) 
+ 		xbarl[,l] <- rowMeans(x[,seq.int(l,by=m,len=n),drop=FALSE])
+ 	xbar <- rowMeans(xbarl)
+ 	ssb <- n * sum((xbarl-xbar)^2)
+ 	sst <- sum((x-xbar)^2)
 
-
-	return(list(sigma=sigma, cost=cost, mu=mu, V=V))
+	out <- list(sigma=sigma, cost=cost, mu=mu, V=V, 
+		ss.between.unmatched=ssb, ss.within.unmatched=sst-ssb,
+		call=syscall)
+	class(out) <- "matchFeats"
+	return(out)
 	
 }
