@@ -455,7 +455,8 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 	m <- pre$m; n <- pre$n; p <- pre$p
 	x <- pre$x; mu <- pre$mu; V <- pre$V
 	rm(pre)
-			
+	syscall <- sys.call()
+				
 	## Tuning parameters
 	con <- list(maxit=1e4, eps=1e-8, cond=1e8, beta=1,
 		betarate=1,	parallel=FALSE, verbose=FALSE)
@@ -469,9 +470,23 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 	maxit.proj <- 1000 
 	eps.proj <- 1e-6
 		
-	## Check set-wise equality of feature vectors between units  	
+	## Sums of squares for unmatched data
+ 	xbarl <- matrix(,p,m)
+ 	for (l in 1:m) 
+ 		xbarl[,l] <- rowMeans(x[,seq.int(l,by=m,len=n),drop=FALSE])
+ 	xbar <- rowMeans(xbarl)
+ 	ssb <- n * sum((xbarl-xbar)^2)
+ 	sst <- sum((x-xbar)^2)
+ 	
+ 	## Check set-wise equality of feature vectors between units  	
 	test <- check.set.equality(x,n,cond)
-	if (!is.null(test)) return(test)	
+	if (!is.null(test)) {
+		test$ss.between.unmatched <- ssb
+		test$ss.within.unmatched <- sst - ssb
+		test$call <- syscall
+		class(test) <- "matchFeats"
+		return(test)	
+	}
 	
 	## Initialize parameter estimates
 	if (is.null(mu) || is.null(V)) {
@@ -562,8 +577,12 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 	}
 	if (equal.variance) V.best <- V.best[,,1]
 	
-	return(list(sigma=sigma, P=P.best[,1,], mu=mu.best, 
-		V=V.best, loglik=logL.best))
+
+	out <- list(sigma=sigma, P=P.best[,1,], mu=mu.best, V=V.best, 
+		loglik=logL.best, ss.between.unmatched=ssb, 
+		ss.within.unmatched=sst-ssb, call=syscall)
+	class(out) <- "matchFeats"
+	return(out)
 	
 }
 

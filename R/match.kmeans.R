@@ -4,11 +4,12 @@ match.kmeans <- function(x, unit=NULL, w=NULL, equal.variance=FALSE,
 	
 	## Preprocess input arguments: check dimensions, 
 	## reshape and recycle as needed	
-	pre <- preprocess(x,group)
+	pre <- preprocess(x,unit)
 	m <- pre$m; n <- pre$n; p <- pre$p
 	R <- pre$R # Cholesky decomposition of w or null
 	x <- pre$x; dim(x) <- c(p,m,n)
 	rm(pre)
+	syscall <- sys.call()
 			
 	## Tuning parameters
 	sigma <- matrix(1:m,m,n)
@@ -104,6 +105,18 @@ match.kmeans <- function(x, unit=NULL, w=NULL, equal.variance=FALSE,
 		}
  	}
 
-	return(list(sigma=sigma, cost=cost, mu=mu, V=V))
+ 	## Sums of squares for unmatched data
+ 	xbarl <- matrix(,p,m)
+ 	for (l in 1:m) 
+ 		xbarl[,l] <- rowMeans(x[,seq.int(l,by=m,len=n),drop=FALSE])
+ 	xbar <- rowMeans(xbarl)
+ 	ssb <- n * sum((xbarl-xbar)^2)
+ 	sst <- sum((x-xbar)^2)
+
+	out <- list(sigma=sigma, cost=cost, mu=mu, V=V, 
+		ss.between.unmatched=ssb, ss.within.unmatched=sst-ssb,
+		call=syscall)
+	class(out) <- "matchFeats"
+	return(out)
 	
 }

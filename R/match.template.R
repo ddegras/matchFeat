@@ -13,6 +13,7 @@ match.template <- function(x, y = 1, unit = NULL, w = NULL,
 		stopifnot(NROW(y) == p && NCOL(y) == m)	
 	}
 	rm(pre)
+	syscall <- sys.call()
 	
 	## Trivial case p == 1 
 	if (p == 1) {
@@ -87,6 +88,18 @@ match.template <- function(x, y = 1, unit = NULL, w = NULL,
 			dim(V) <- c(p,p,m)	
 		}		
  	}
-		
-	return(list(sigma=sigma, cost=cost, mu=mu, V=V))	
+ 	
+ 	## Sums of squares for unmatched data
+ 	xbarl <- matrix(,p,m)
+ 	for (l in 1:m) 
+ 		xbarl[,l] <- rowMeans(x[,seq.int(l,by=m,len=n),drop=FALSE])
+ 	xbar <- rowMeans(xbarl)
+ 	ssb <- n * sum((xbarl-xbar)^2)
+ 	sst <- sum((x-xbar)^2)
+
+	out <- list(sigma=sigma, cost=cost, mu=mu, V=V, 
+		ss.between.unmatched=ssb, ss.within.unmatched=sst-ssb,
+		call=syscall)
+	class(out) <- "matchFeats"
+	return(out)	
 }
