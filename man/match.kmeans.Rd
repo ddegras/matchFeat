@@ -8,8 +8,8 @@ This function matches collections of feature vectors in a one-to-one fashion
 using a K-means-like method.
 }
 \usage{
-match.kmeans(x, unit = NULL, w = NULL, equal.variance = FALSE, 
-	method = c("hungarian", "bruteforce"), control = list())
+match.kmeans(x, unit = NULL, w = NULL, method = c("hungarian", "bruteforce"), 
+	control = list())
 }
 
 \arguments{
@@ -19,12 +19,9 @@ match.kmeans(x, unit = NULL, w = NULL, equal.variance = FALSE,
 
 \item{w}{weights for the (squared Euclidean) loss function. Can be specified as single positive number, \eqn{p}-vector, or \eqn{p \times p} positive definite matrix}
 
-\item{equal.variance}{logical; if TRUE, resp. FALSE, calculate common, resp. label-specific, covariance after matching features}
-
 \item{method}{method for linear assignment problem: \code{hungarian} algorithm or \code{bruteforce}}
 
 \item{control}{optional tuning parameters}
-
 }
 
 \details{
@@ -35,19 +32,20 @@ If \code{x} is a matrix, the rows should be sorted by increasing unit label and 
 
 The argument \code{w} can be specified as a vector of positive numbers (will be recycled to length \eqn{p} if needed) or as a positive definite matrix of size \eqn{(p,p)}.
 
-To calculate a common sample covariance for all matched feature vectors, set \code{equal.variance} to TRUE; otherwise (FALSE) one sample covariance matrix is calculated for each label/class. 
-
-The optional argument \code{control} is a list with two fields: \code{sigma}, starting point for the optimization (\eqn{(m,n)} matrix of permutations; and \code{maxit}, maximum number of iterations. 
-
+The optional argument \code{control} is a list with three fields: \code{sigma}, starting point for the optimization (\eqn{(m,n)} matrix of permutations; \code{maxit}, maximum number of iterations; and \code{equal.variance}, logical value that specifies whether the returned sample covariance matrix(-ces) \code{V} for matched features should be equal between labels/classes (TRUE) or label-specific (FALSE, default). 
+% The output covariance(s) \code{V} can be used as a diagnostic tool for heteroskedasticity between labels 
 }
 
 
 \value{
-A  list with components
+A  list of class \code{matchFeats} with components
 \item{sigma}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
 \item{cost}{minimum objective value}
 \item{mu}{sample mean for each class/label (\eqn{(p,m)} matrix)}
 \item{V}{sample covariance for each class/label (\eqn{(p,m)} matrix}
+\item{ss.between.unmatched}{sum of squares between labels for unmatched data}
+\item{ss.within.unmatched}{sum of squares within labels for unmatched data}
+\item{call}{function call}
 }
 
 \references{

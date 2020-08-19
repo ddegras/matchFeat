@@ -1,4 +1,4 @@
-match.bca <- function(x, unit = NULL, w=NULL, equal.variance=FALSE,
+match.bca <- function(x, unit = NULL, w = NULL, 
 	method = c("cyclical","random"), control = list())
 {
 
@@ -14,11 +14,19 @@ match.bca <- function(x, unit = NULL, w=NULL, equal.variance=FALSE,
 	## Tuning parameters
 	sigma <- matrix(1:m,m,n)
 	maxit <- 1000L
+	equal.variance <- FALSE
 	if (is.list(control)) {
 		if (!is.null(control$sigma)) sigma <- control$sigma
 		if (!is.null(control$maxit)) maxit <- control$maxit
+		if (!is.null(control$equal.variance)) 
+			equal.variance <- control$equal.variance		
 	}
 	method <- match.arg(method)	
+
+ 	## Sums of squares for unmatched data
+ 	mu <- rowMeans(x,dims=2)
+ 	ssw <- sum((x-as.vector(mu))^2)
+ 	ssb <- n * sum((mu-rowMeans(mu))^2)
 
 	## Trivial case p == 1 
 	if (p == 1) {
@@ -29,7 +37,11 @@ match.bca <- function(x, unit = NULL, w=NULL, equal.variance=FALSE,
 		V <- rowMeans(x^2) - mu^2
 		cost <- n * sum(V)
 		if (equal.variance) V <- rep(mean(V),m)
-		return(list(sigma=sigma, cost=cost, mu=mu, V=V))
+		out <- list(sigma=sigma, cost=cost, mu=mu,
+			V=V, ss.between.unmatched=ssb, 
+			ss.within.unmatched=ssw, call=syscall)
+		class(out) <- "matchFeats"
+		return(out)
 	}	
 	
 	## Rescale data if required
@@ -120,17 +132,9 @@ match.bca <- function(x, unit = NULL, w=NULL, equal.variance=FALSE,
 			dim(V) <- c(p,p,m)	
 		}		
  	}
- 	
- 	## Sums of squares for unmatched data
- 	xbarl <- matrix(,p,m)
- 	for (l in 1:m) 
- 		xbarl[,l] <- rowMeans(x[,seq.int(l,by=m,len=n),drop=FALSE])
- 	xbar <- rowMeans(xbarl)
- 	ssb <- n * sum((xbarl-xbar)^2)
- 	sst <- sum((x-xbar)^2)
-
+ 		
 	out <- list(sigma=sigma, cost=cost, mu=mu, V=V, 
-		ss.between.unmatched=ssb, ss.within.unmatched=sst-ssb,
+		ss.between.unmatched=ssb, ss.within.unmatched=ssw,
 		call=syscall)
 	class(out) <- "matchFeats"
 	return(out)

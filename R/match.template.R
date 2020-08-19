@@ -1,5 +1,5 @@
-match.template <- function(x, y = 1, unit = NULL, w = NULL, 
-	equal.variance = FALSE, method = c("hungarian","bruteforce"))
+match.template <- function(x, template = 1, unit = NULL, w = NULL, 
+	method = c("hungarian","bruteforce"), equal.variance = FALSE)
 {
 	## Preprocess input arguments: check dimensions, 
 	## reshape and recycle as needed	
@@ -7,6 +7,7 @@ match.template <- function(x, y = 1, unit = NULL, w = NULL,
 	m <- pre$m; n <- pre$n; p <- pre$p
 	R <- pre$R # Cholesky decomposition of w or null
 	x <- pre$x; dim(x) <- c(p,m,n)
+	y <- template
 	if (length(y) == 1) { 
 		y <- x[,,y] 
 	} else {
@@ -15,6 +16,11 @@ match.template <- function(x, y = 1, unit = NULL, w = NULL,
 	rm(pre)
 	syscall <- sys.call()
 	
+ 	## Sums of squares for unmatched data
+ 	mu <- rowMeans(x,dims=2)
+ 	ssw <- sum((x-as.vector(mu))^2)
+ 	ssb <- n * sum((mu-rowMeans(mu))^2)
+
 	## Trivial case p == 1 
 	if (p == 1) {
 		dim(x) <- c(m,n)
@@ -24,7 +30,11 @@ match.template <- function(x, y = 1, unit = NULL, w = NULL,
 		V <- rowMeans(x^2) - mu^2
 		cost <- n * sum(V)
 		if (equal.variance) V <- rep(mean(V),m)
-		return(list(sigma=sigma, cost=cost, mu=mu, V=V))
+		out <- list(sigma=sigma, cost=cost, mu=mu, 
+			V=V, ss.between.unmatched=ssb, 
+			ss.within.unmatched=ssw, call=syscall)
+		class(out) <- "matchFeats"
+		return(out)
 	}	
 	
 	## Rescale data if required
@@ -88,17 +98,9 @@ match.template <- function(x, y = 1, unit = NULL, w = NULL,
 			dim(V) <- c(p,p,m)	
 		}		
  	}
- 	
- 	## Sums of squares for unmatched data
- 	xbarl <- matrix(,p,m)
- 	for (l in 1:m) 
- 		xbarl[,l] <- rowMeans(x[,seq.int(l,by=m,len=n),drop=FALSE])
- 	xbar <- rowMeans(xbarl)
- 	ssb <- n * sum((xbarl-xbar)^2)
- 	sst <- sum((x-xbar)^2)
 
 	out <- list(sigma=sigma, cost=cost, mu=mu, V=V, 
-		ss.between.unmatched=ssb, ss.within.unmatched=sst-ssb,
+		ss.between.unmatched=ssb, ss.within.unmatched=ssw,
 		call=syscall)
 	class(out) <- "matchFeats"
 	return(out)	
