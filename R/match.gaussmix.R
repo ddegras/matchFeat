@@ -444,9 +444,9 @@ check.set.equality <- function(x,n,cond)
 
 
 
-match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL, 
-	equal.variance=FALSE, method=c("exact","approx"), 
-	control=list())
+match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL, 
+	equal.variance = FALSE, method = c("exact","approx"), 
+	control = list())
 {
 	
 	## Preprocess input arguments: check dimensions, 
@@ -470,19 +470,18 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 	maxit.proj <- 1000 
 	eps.proj <- 1e-6
 		
-	## Sums of squares for unmatched data
- 	xbarl <- matrix(,p,m)
- 	for (l in 1:m) 
- 		xbarl[,l] <- rowMeans(x[,seq.int(l,by=m,len=n),drop=FALSE])
- 	xbar <- rowMeans(xbarl)
- 	ssb <- n * sum((xbarl-xbar)^2)
- 	sst <- sum((x-xbar)^2)
+ 	## Sums of squares for unmatched data
+ 	dim(x) <- c(p,m,n)
+ 	mu <- rowMeans(x,dims=2)
+ 	ssw <- sum((x-as.vector(mu))^2)
+ 	ssb <- n * sum((mu-rowMeans(mu))^2)
+	dim(x) <- c(p,m*n)
  	
  	## Check set-wise equality of feature vectors between units  	
 	test <- check.set.equality(x,n,cond)
 	if (!is.null(test)) {
 		test$ss.between.unmatched <- ssb
-		test$ss.within.unmatched <- sst - ssb
+		test$ss.within.unmatched <- ssw
 		test$call <- syscall
 		class(test) <- "matchFeats"
 		return(test)	
@@ -491,12 +490,12 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 	## Initialize parameter estimates
 	if (is.null(mu) || is.null(V)) {
 		dim(x) <- c(p,m,n)
-		init <- match.bca(x = x, unit = NULL, method = "c", 
-			w = NULL, equal.variance = equal.variance)
+		init <- match.bca(x, 
+			control=list(equal.variance=equal.variance))
 		mu <- init$mu
 		V <- init$V
 		dim(x) <- c(p,m*n)
-	} 
+	}
 	if (equal.variance) 
 		V <- array(V[1:(p^2)],c(p,p,m))
 		
@@ -580,7 +579,7 @@ match.gaussmix <- function(x, unit=NULL, mu=NULL, V=NULL,
 
 	out <- list(sigma=sigma, P=P.best[,1,], mu=mu.best, V=V.best, 
 		loglik=logL.best, ss.between.unmatched=ssb, 
-		ss.within.unmatched=sst-ssb, call=syscall)
+		ss.within.unmatched=ssw, call=syscall)
 	class(out) <- "matchFeats"
 	return(out)
 	

@@ -1,4 +1,4 @@
-match.kmeans <- function(x, unit=NULL, w=NULL, equal.variance=FALSE,
+match.kmeans <- function(x, unit=NULL, w=NULL, 
 	method=c("hungarian","bruteforce"), control=list())
 {
 	
@@ -14,12 +14,20 @@ match.kmeans <- function(x, unit=NULL, w=NULL, equal.variance=FALSE,
 	## Tuning parameters
 	sigma <- matrix(1:m,m,n)
 	maxit <- 1000L
+	equal.variance <- FALSE
 	if (is.list(control)) {
 		if (!is.null(control$sigma)) sigma <- control$sigma
 		if (!is.null(control$maxit)) maxit <- control$maxit
+		if (!is.null(control$equal.variance)) 
+			equal.variance <- control$equal.variance
 	}
 	method <- match.arg(method)	
 		
+	## Sums of squares for unmatched data
+ 	mu <- rowMeans(x,dims=2)
+ 	ssw <- sum((x-as.vector(mu))^2)
+ 	ssb <- n * sum((mu-rowMeans(mu))^2)
+
 	## Rescale data if required
 	if (!is.null(w)) {
 		if (is.vector(w)) {
@@ -105,16 +113,8 @@ match.kmeans <- function(x, unit=NULL, w=NULL, equal.variance=FALSE,
 		}
  	}
 
- 	## Sums of squares for unmatched data
- 	xbarl <- matrix(,p,m)
- 	for (l in 1:m) 
- 		xbarl[,l] <- rowMeans(x[,seq.int(l,by=m,len=n),drop=FALSE])
- 	xbar <- rowMeans(xbarl)
- 	ssb <- n * sum((xbarl-xbar)^2)
- 	sst <- sum((x-xbar)^2)
-
 	out <- list(sigma=sigma, cost=cost, mu=mu, V=V, 
-		ss.between.unmatched=ssb, ss.within.unmatched=sst-ssb,
+		ss.between.unmatched=ssb, ss.within.unmatched=ssw,
 		call=syscall)
 	class(out) <- "matchFeats"
 	return(out)

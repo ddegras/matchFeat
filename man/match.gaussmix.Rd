@@ -13,19 +13,19 @@ match.gaussmix(x, unit = NULL, mu = NULL, V = NULL, equal.variance = FALSE,
 }
 
 \arguments{
-\item{x}{data: matrix of dimensions \eqn{(mn,p)} or 3D array of dimensions \eqn{(p,m,n)} with \eqn{m} = number of labels/classes, \eqn{n} = number of sample units, and \eqn{p} = number of variables)}
+\item{x}{data: matrix of dimensions \eqn{(mn,p)} or array of dimensions \eqn{(p,m,n)} with \eqn{m} = number of labels/classes, \eqn{n} = number of sample units, and \eqn{p} = number of variables)}
 
 \item{unit}{integer (=number of units) or vector mapping rows of \code{x} to sample units (length \eqn{mn}). Must be specified only if \code{x} is a matrix.}
 
-\item{mu}{optional matrix of initial mean vectors for MLE (dimension \eqn{(p,m)})}
+\item{mu}{matrix of initial estimates of mean vectors (dimension \eqn{(p,m)})}
 
-\item{V}{optional matrix of initial covariance matrices for MLE (dimension \eqn{(p,p,m)})}
+\item{V}{array of initial estimates of covariance matrices (dimension \eqn{(p,p,m)})}
   
 \item{equal.variance}{logical: if \code{TRUE}, all covariance matrices are assumed to be equal}
   
 \item{method}{method for calculating class probabilities of feature vectors}
 
-\item{control}{optional list of tuning parameters for MLE}
+\item{control}{list of tuning parameters}
 }
 
 \details{
@@ -48,7 +48,7 @@ the EM algorithm stops if the relative increase in log-likelihood between two it
 
 \value{
 \item{sigma}{permutations that best match feature vectors across units (\eqn{(m,n)} matrix)}
-\item{P}{conditional probability that a feature vector is given its 'true' label
+\item{P}{conditional probability that a feature vector is assigned to its 'true' label
 (\eqn{(m,n)} matrix)}
 \item{mu}{MLE of true mean vectors (\eqn{(p,m)} matrix)}
 \item{mu}{MLE of true covariance matrices (\eqn{(p,p,m)} array or \eqn{(p,p)}matrix if \code{equal.variance=TRUE})}

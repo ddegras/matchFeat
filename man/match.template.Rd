@@ -10,7 +10,7 @@ matching the data to a pre-specified template.
 
 \usage{
 match.template <- function(x, y = 1, unit = NULL, w = NULL, 
-	equal.variance = FALSE, method = c("hungarian","bruteforce"))
+	method = c("hungarian","bruteforce"), equal.variance = FALSE)
 }
 
 \arguments{
@@ -25,6 +25,7 @@ match.template <- function(x, y = 1, unit = NULL, w = NULL,
 
 \item{method}{method for the linear assignment problem: \code{hungarian} algorithm or \code{bruteforce}}
 
+\item{equal.variance}{logical; if TRUE, resp. FALSE, return common, resp. label-specific, covariance of matched features}
 }
 
 \details{
@@ -41,8 +42,12 @@ The argument \code{w} can be specified as a vector of positive numbers (will be 
 A list with fields 
 \item{sigma}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
 \item{cost}{minimum objective value}
-\item{mu}{sample mean for each class/label (\eqn{(p,m)} matrix)}
-\item{V}{sample covariance for each class/label (\eqn{(p,p,m)} array if \code{equal.variance} is FALSE, \eqn{(p,p)} matrix otherwise}
+\item{mu}{mean vector of matched features for each class/label (\eqn{(p,m)} matrix)}
+\item{V}{covariance matrix of matched features for each class/label (\eqn{(p,p,m)} array if \code{equal.variance} is FALSE, \eqn{(p,p)} matrix otherwise}
+\item{ss.between.unmatched}{sum of squares between labels for unmatched data}
+\item{ss.within.unmatched}{sum of squares within labels for unmatched data}
+\item{call}{function call}
+
 }
 
 \references{
