@@ -446,11 +446,13 @@ check.set.equality <- function(x,n,cond)
 
 match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL, 
 	equal.variance = FALSE, method = c("exact","approx"), 
-	control = list())
+	fixed = FALSE, control = list())
 {
 	
 	## Preprocess input arguments: check dimensions, 
 	## reshape and recycle as needed	
+	if (fixed && (is.null(mu) || is.null(V))) 
+		stop("If 'fixed' is TRUE, please specify 'mu' and 'V'")
 	pre <- preprocess(x,unit,mu,V)
 	m <- pre$m; n <- pre$n; p <- pre$p
 	x <- pre$x; mu <- pre$mu; V <- pre$V
@@ -531,25 +533,26 @@ match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL,
 		beta <- min(beta * betarate, 1)
 
 		## M step
-		Q.old <- apply(logphi*P,2,sum)
-		V.tmp <- array(,c(p,p,m))
-		for (l in 1:m) {
-			w <- P[,l,] / sum(P[,l,])
-			dim(w) <- NULL
-			mu[,l] <- x %*% w
-			V.tmp[,,l] <- tcrossprod(x * matrix(sqrt(w),p,m*n,byrow=T)) - 
-				tcrossprod(mu[,l])
-			V.tmp[,,l] <- regularize.cov(V.tmp[,,l], cond)
-		}
-		if (equal.variance) {
-			V.tmp <- apply(V.tmp,1:2,mean)
-			V.tmp <- array(V.tmp,c(p,p,m))
-		}			
-		logphi <- norm.dens(x,mu,V.tmp,log=TRUE)
-		Q <- apply(logphi*P,2,sum)
-		idx <- (Q > Q.old)
-		V[,,idx] <- V.tmp[,,idx]
-		
+		if (!fixed) {
+			Q.old <- apply(logphi*P,2,sum)
+			V.tmp <- array(,c(p,p,m))
+			for (l in 1:m) {
+				w <- P[,l,] / sum(P[,l,])
+				dim(w) <- NULL
+				mu[,l] <- x %*% w
+				V.tmp[,,l] <- tcrossprod(x * matrix(sqrt(w),p,m*n,byrow=T)) - 
+					tcrossprod(mu[,l])
+				V.tmp[,,l] <- regularize.cov(V.tmp[,,l], cond)
+			}
+			if (equal.variance) {
+				V.tmp <- apply(V.tmp,1:2,mean)
+				V.tmp <- array(V.tmp,c(p,p,m))
+			}			
+			logphi <- norm.dens(x,mu,V.tmp,log=TRUE)
+			Q <- apply(logphi*P,2,sum)
+			idx <- (Q > Q.old)
+			V[,,idx] <- V.tmp[,,idx]
+		}		
 	}
 	
 	if (is.null(P.best)) {
