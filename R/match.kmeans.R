@@ -7,7 +7,8 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 	pre <- preprocess(x,unit)
 	m <- pre$m; n <- pre$n; p <- pre$p
 	R <- pre$R # Cholesky decomposition of w or null
-	x <- pre$x; dim(x) <- c(p,m,n)
+	if (!is.null(pre$x)) 
+		{ x <- pre$x; dim(x) <- c(p,m,n) }
 	rm(pre)
 	syscall <- sys.call()
 			
@@ -23,10 +24,9 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 	}
 	method <- match.arg(method)	
 		
-	## Sums of squares for unmatched data
- 	mu <- rowMeans(x,dims=2)
- 	ssw <- sum((x-as.vector(mu))^2)
- 	ssb <- n * sum((mu-rowMeans(mu))^2)
+	## Trivial cases 
+	if (m == 1 || n == 1 || p == 1)
+		return(trivial(x,m,n,p,w,R,equal.variance,syscall))
 
 	## Rescale data if required
 	if (!is.null(w)) {
@@ -39,6 +39,11 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 		}
 	}
 	
+	## Sums of squares for unmatched data
+ 	mu <- rowMeans(x,dims=2)
+ 	ssw <- sum((x-as.vector(mu))^2)
+ 	ssb <- n * sum((mu-rowMeans(mu))^2)
+
 	## Ensure that data values are non-negative
 	xmin <- min(x)
 	if (xmin < 0) x <- x - xmin
@@ -57,11 +62,11 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 	xbar <- matrix(0,p,m)
 	for (i in 1:n) 
 		xbar <- xbar + x[,sigma[,i],i]
-	xbar <- xbar / 	n
+	xbar <- xbar / n
 
 	## Initial cost
 	sumx2 <- sum(x^2)
-	cost <- sumx2 - n * sum(xbar^2)
+	cost <- (sumx2 - n * sum(xbar^2)) / (n-1)
 	
 	for (count in 1:maxit)
 	{
@@ -74,8 +79,7 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 				brute(x[,,i],xbar,perms)
 		} else { solve_LSAP(crossprod(xbar,x[,,i]), 
 			maximum = TRUE)}
-		
-		
+			
 		# New centers
 		xbar <- matrix(0,p,m)
 		for (i in 1:n) 
@@ -83,7 +87,7 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 		xbar <- xbar / 	n
 		
 		# New cost 
-		cost <- sumx2 - n * sum(xbar^2)
+		cost <- (sumx2 - n * sum(xbar^2)) / (n-1)
 		
 		# Terminate if no reduction in cost
 		if (cost == cost.old) break
