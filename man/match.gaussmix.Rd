@@ -9,7 +9,7 @@ This function performs maximum likelihood estimation (MLE) for the one-to-one fe
 
 \usage{
 match.gaussmix(x, unit = NULL, mu = NULL, V = NULL, equal.variance = FALSE, 
-	method = c("exact", "approx"), control = list())
+	method = c("exact", "approx"), fixed = FALSE, control = list())
 }
 
 \arguments{
@@ -25,6 +25,8 @@ match.gaussmix(x, unit = NULL, mu = NULL, V = NULL, equal.variance = FALSE,
   
 \item{method}{method for calculating class probabilities of feature vectors}
 
+\item{fixed}{logical; if \code{TRUE}, the model parameters \code{mu} and \code{V} are fixed to their initial values}
+ 
 \item{control}{list of tuning parameters}
 }
 

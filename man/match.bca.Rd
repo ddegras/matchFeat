@@ -42,7 +42,7 @@ The optional argument \code{control} is a list with three fields: \code{sigma}, 
 }
 
 \value{
-A  list of class \code{matchFeats} with components
+A list of class \code{matchFeats} with components
 \item{sigma}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
 \item{cost}{minimum objective value}
 \item{mu}{sample mean for each class/label (\eqn{(p,m)} matrix)}
@@ -61,10 +61,24 @@ Wright (2015). Coordinate descent algorithms. \url{https://arxiv.org/abs/1502.04
 
 
 \seealso{
-\code{\link{match.gaussmix}}, \code{\link{match.kmeans}}, \code{\link{match.template}}
+\code{\link{match.1pass}}, \code{\link{match.gaussmix}}, 
+\code{\link{match.kmeans}}, \code{\link{match.template}}
 }
 
 \examples{
+data(optdigits)
+m <- length(unique(optdigits$label)) # number of classes
+n <- nrow(optdigits$x) / m # number of units
+
+## Use function with data in matrix form
+fit1 <- match.bca(optdigits$x, unit=n)
+
+## Use function with data in array form
+p <- ncol(optdigits$x)
+x <- t(optdigits$x)
+dim(x) <- c(p,m,n)
+fit2 <- match.bca(x)
+stopifnot(identical(fit1,fit2))
 
 }
 

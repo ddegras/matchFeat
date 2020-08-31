@@ -1,13 +1,18 @@
 preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 {
 
-	if (length(dim(x)) < 3) {
-	## Case: x specified as matrix
-	if (is.vector(x)) dim(x) <- c(length(x),1)
-	if (!is.matrix(x)) x <- as.matrix(x)
+	out <- list(x=NULL, m=NULL, n=NULL, p=NULL, mu=mu, V=V, R=NULL)	
+	
 	if (any(is.infinite(x) | is.na(x)))
 		stop(paste("Please make sure that 'x' does not contain missing",
 		"or infinite values"))
+
+	dimx <- dim(x)
+	
+	if (length(dimx) < 3) {
+	## Case: x specified as matrix
+	if (is.vector(x)) dim(x) <- c(length(x),1)
+	# if (!is.matrix(x)) x <- as.matrix(x)
 		# Check that 'unit' is not NULL 
 		if (is.null(unit)) 
 			stop(paste("Please provide 'x' as an array of dimensions",
@@ -42,24 +47,24 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 			n <- length(freq)
 		}
 		p <- ncol(x)
-		x <- t(x)
+		out$x <- t(x)
 	} else {		
 	## Case: x specified as array	
-		dim.x <- dim(x)
-		if (length(dim.x) > 3)
+		if (length(dimx) > 3)
 			stop(paste("Please provide 'x' as an array of dimensions (p,m,n)",
 				"OR provide 'x' as a matrix of dimensions (n*p,m)\n",
 				"together with the vector 'unit' (length n*p) where m,n,p",
 				"are the respective numbers of feature vectors, units,",
 				"and variables"))
-		p <- dim.x[1]
-		m <- dim.x[2]
-		n <- dim.x[3]
-		dim(x) <- c(p,m*n)		
-		if (any(is.infinite(x) | is.na(x)))
-			stop(paste("Please make sure that 'x' does not contain",
-			 	"missing or infinite values"))
+		p <- dimx[1]
+		m <- dimx[2]
+		n <- dimx[3]
+		# dim(x) <- c(p,m*n)		
+		# if (any(is.infinite(x) | is.na(x)))
+			# stop(paste("Please make sure that 'x' does not contain",
+			 	# "missing or infinite values"))
 	}
+	out$m <- m; out$n <- n; out$p <- p
 
 	## Check mu and V if provided
 	if (!is.null(mu) || !is.null(V)) {
@@ -84,16 +89,74 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 	}	
 	
 	## Check w if provided
-	R <- NULL
 	if (!is.null(w)) {
 		err <- paste("Please make sure that 'w' is a vector of", 
 			"positive numbers or a positive definite matrix")
-		if (is.vector(w) && any(w <= 0)) {
-			stop(err)
+		if (is.vector(w)) {
+			if (any(w <= 0) || !is.element(length(w),c(1,p))) stop(err)
 		} else if (is.matrix(w)) {
-			R <- tryCatch(chol(w), error=function(e) stop(err))
+			out$R <- tryCatch(chol(w), error=function(e) stop(err))
 		} else stop(err)
 	}
 		
-	return(list(x=x, m=m, n=n, p=p, mu=mu, V=V, R=R))
+	return(out)
+}
+
+
+trivial <- function(x,m,n,p,w,R,equal.variance,syscall)
+{
+
+	stopifnot(m == 1 || n == 1 || p == 1)
+	
+	## Case: only one unit
+	if (n == 1) {
+		dim(x) <- c(p,m)
+		xbar <- rowMeans(x)
+		if (is.null(w)) {
+			ssb <- sum((x-xbar)^2)
+		} else {
+			ssb <- if (is.vector(w)) {
+				rowSums((x-xbar)^2) * w
+			} else { sum((R %*% (x-xbar))^2) }
+		} 		
+		out <- list(sigma=matrix(1:m,m,1), cost=0, mu=x,
+			V=array(0,c(p,p,m)), ss.between.unmatched=ssb, 
+			ss.within.unmatched=0, call=syscall)
+
+	## Case: only one class/feature 
+	} else if (m == 1) {
+		dim(x) <- c(p,n)
+		xbar <- rowMeans(x)
+		if (is.null(w)) {
+			ssw <- sum((x-xbar)^2)
+		} else {
+			ssw <- if (is.vector(w)) {
+				rowSums((x-xbar)^2) * w
+			} else { sum((R %*% (x-xbar))^2) }
+		} 
+		out <- list(sigma = matrix(1,1,n), cost = ssw/(n-1),
+			mu = xbar, V = array(tcrossprod(x-xbar)/n, c(p,p,1)), 
+			ss.between.unmatched = 0, ss.within.unmatched = ssw,
+			call=syscall)
+			
+	## Case: only one variable 
+	} else {				
+		dim(x) <- c(m,n)
+		xbar <- as.vector(rowMeans(x))
+		if (is.null(w)) w <- 1
+		ssw <- sum((x-xbar)^2) * w
+		ssb <- n * sum((xbar-mean(xbar))^2)	* w			
+		sigma <- apply(x,2,order)
+		x <- x[cbind(as.vector(sigma),rep(1:n,each=m))]
+		mu <- rowMeans(x)
+		V <- rowMeans(x^2) - mu^2
+		cost <- n/(n-1) * sum(V) 
+		if (equal.variance) V <- rep(mean(V),m)
+		out <- list(sigma=sigma, cost=cost, mu=mu,
+			V=V, ss.between.unmatched=ssb, 
+			ss.within.unmatched=ssw, call=syscall)
+	}	
+
+	class(out) <- "matchFeats"	
+	return(out)		
 }
