@@ -7,7 +7,8 @@ match.bca <- function(x, unit = NULL, w = NULL,
 	pre <- preprocess(x,unit)
 	m <- pre$m; n <- pre$n; p <- pre$p
 	R <- pre$R # Cholesky decomposition of w or null
-	x <- pre$x; dim(x) <- c(p,m,n)
+	if (!is.null(pre$x)) 
+		{ x <- pre$x; dim(x) <- c(p,m,n) }
 	rm(pre)
 	syscall <- sys.call()
 	
@@ -22,27 +23,24 @@ match.bca <- function(x, unit = NULL, w = NULL,
 			equal.variance <- control$equal.variance		
 	}
 	method <- match.arg(method)	
-
- 	## Sums of squares for unmatched data
- 	mu <- rowMeans(x,dims=2)
- 	ssw <- sum((x-as.vector(mu))^2)
- 	ssb <- n * sum((mu-rowMeans(mu))^2)
-
-	## Trivial case p == 1 
-	if (p == 1) {
-		dim(x) <- c(m,n)
-		sigma <- apply(x,2,order)
-		x <- apply(x,2,sort)
-		mu <- rowMeans(x)
-		V <- rowMeans(x^2) - mu^2
-		cost <- n * sum(V)
-		if (equal.variance) V <- rep(mean(V),m)
-		out <- list(sigma=sigma, cost=cost, mu=mu,
-			V=V, ss.between.unmatched=ssb, 
-			ss.within.unmatched=ssw, call=syscall)
-		class(out) <- "matchFeats"
-		return(out)
-	}	
+ 
+	## Trivial cases 
+	if (m == 1 || n == 1 || p == 1)
+		return(trivial(x,m,n,p,w,R,equal.variance,syscall))
+	# if (p == 1) {
+		# dim(x) <- c(m,n)
+		# sigma <- apply(x,2,order)
+		# x <- apply(x,2,sort)
+		# mu <- rowMeans(x)
+		# V <- rowMeans(x^2) - mu^2
+		# cost <- n * sum(V)
+		# if (equal.variance) V <- rep(mean(V),m)
+		# out <- list(sigma=sigma, cost=cost, mu=mu,
+			# V=V, ss.between.unmatched=ssb, 
+			# ss.within.unmatched=ssw, call=syscall)
+		# class(out) <- "matchFeats"
+		# return(out)
+	# }	
 	
 	## Rescale data if required
 	if (!is.null(w)) {
@@ -54,6 +52,11 @@ match.bca <- function(x, unit = NULL, w = NULL,
 			dim(x) <- c(p,m,n)
 		}
 	}
+
+	## Sums of squares for unmatched data
+ 	mu <- rowMeans(x,dims=2)
+ 	ssw <- sum((x-as.vector(mu))^2)
+ 	ssb <- n * sum((mu-rowMeans(mu))^2)
 
 	## Ensure that data are non-negative
 	xmin <- min(x)
@@ -81,13 +84,12 @@ match.bca <- function(x, unit = NULL, w = NULL,
 		if (method == "random")
 			sweep <- sample(1:n)
 					
-		for (i in 1:n)
+		for (i in sweep)
 		{
-			s <- sweep[i]
-			sumxPs <- sumxP - x[,sigma[,s],s]  
-			sigma[,s] <- solve_LSAP(crossprod(sumxPs,x[,,s]), 
+			sumxPi <- sumxP - x[,sigma[,i],i]  
+			sigma[,i] <- solve_LSAP(crossprod(sumxPi,x[,,i]), 
 					maximum = TRUE)
-			sumxP <- sumxPs + x[,sigma[,s],s]
+			sumxP <- sumxPi + x[,sigma[,i],i]
 		}			
 		
 		## Periodically recalculate X1 P1 + ... + Xn Pn
@@ -106,20 +108,21 @@ match.bca <- function(x, unit = NULL, w = NULL,
 		
 	}	
 	
-	cost <- sum(x^2) - (objective/n)
+	cost <- (sum(x^2) - (objective/n)) / (n-1)
 
 	## Sample means and covariances of matched vectors
-	mu <- matrix(,p,m)
+	# mu <- matrix(,p,m)
+	mu <- sumxP/n
 	V <- array(,c(p,p,m))
 	dim(x) <- c(p,m*n)
 	for (l in 1:m) {
 		idx <- seq.int(0,by=m,len=n) + sigma[l,]
-		mu[,l] <- rowMeans(x[,idx,drop=F])
+		# mu[,l] <- rowMeans(x[,idx,drop=F])
 		V[,,l] <- tcrossprod(x[,idx,drop=F])/n - 
 			tcrossprod(mu[,l])	
 	}	
 	if (xmin < 0) mu <- mu + xmin
-	if (equal.variance) V <- apply(V,1:2,mean)
+	if (equal.variance) V <- rowMeans(V,dims=2L) # apply(V,1:2,mean)
  	if (!is.null(w)) {
  		if (is.vector(w)) {
  			mu <- mu / sqrt(w)
