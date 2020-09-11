@@ -455,7 +455,9 @@ match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL,
 		stop("If 'fixed' is TRUE, please specify 'mu' and 'V'")
 	pre <- preprocess(x,unit,mu,V)
 	m <- pre$m; n <- pre$n; p <- pre$p
-	x <- pre$x; mu <- pre$mu; V <- pre$V
+	mu <- pre$mu; V <- pre$V
+	if (!is.null(pre$x)) x <- pre$x
+
 	rm(pre)
 	syscall <- sys.call()
 				
