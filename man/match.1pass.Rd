@@ -46,8 +46,9 @@ A list of class \code{matchFeats} with components
 
 
 \seealso{
-\code{\link{match.bca}}, \code{\link{match.gaussmix}}, 
-\code{\link{match.kmeans}}, \code{\link{match.template}}
+\code{\link{match.2x}}, \code{\link{match.bca}},
+\code{\link{match.gaussmix}}, \code{\link{match.template}}, 
+\code{\link{match.kmeans}}
 }
 
 \examples{

@@ -60,13 +60,14 @@ the EM algorithm stops if the relative increase in log-likelihood between two it
 \references{
 Degras and Chen (2020). One-To-One Feature Matching under Association Ambiguity. 
 
-`McLachlan and Krishnan (2008). The EM Algorithm and Extensions. 
-`}
+`McLachlan and Krishnan (2008). The EM Algorithm and Extensions.`
+}
 
 
 \seealso{
-\code{\link{match.bca}}, \code{\link{match.kmeans}},
-\code{\link{match.template}} 
+\code{\link{match.1pass}},\code{\link{match.2x}},
+\code{\link{match.bca}}, \code{\link{match.template}},
+\code{\link{match.kmeans}}
 }
 
 \examples{

@@ -53,15 +53,13 @@ A list of class \code{matchFeats} with components
 }
 
 \references{
-Degras and Chen (2020). One-to-one feature matching under association ambiguity. \cr
+Degras (2020). One-to-one feature matching with applications to multilevel analysis. \cr
 Wright (2015). Coordinate descent algorithms. \url{https://arxiv.org/abs/1502.04759}
 }
 
-
-
-
 \seealso{
-\code{\link{match.1pass}}, \code{\link{match.gaussmix}}, 
+\code{\link{match.1pass}}, \code{\link{match.2x}},
+\code{\link{match.bca.unbalanced}}, \code{\link{match.gaussmix}}, 
 \code{\link{match.kmeans}}, \code{\link{match.template}}
 }
 

@@ -1,12 +1,12 @@
-\name{matchFeats-package}
-\alias{matchFeats-package}
+\name{matchFeat-package}
+\alias{matchFeat-package}
 
 \docType{package}
 \title{
-\packageTitle{matchFeats}
+\packageTitle{matchFeat}
 }
 \description{
-\packageDescription{matchFeats}
+\packageDescription{matchFeat}
 }
 \details{
 
@@ -14,12 +14,12 @@
 }
 
 \author{
-Author: \packageAuthor{matchFeats}
-Maintainer: \packageMaintainer{matchFeats}
+Author: \packageAuthor{matchFeat}
+Maintainer: \packageMaintainer{matchFeat}
 }
 
 \references{
-Degras and Chen (2020). One-to-one feature matching under association ambiguity. \cr
+Degras (2020). One-to-one feature matching under association ambiguity. \cr
 \url{https://www.crcv.ucf.edu/projects/GMMCP-Tracker} \cr
 Wright (2015). Coordinate descent algorithms.
 \url{https://arxiv.org/abs/1502.04759} \cr

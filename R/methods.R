@@ -1,17 +1,17 @@
-print.matchFeats <- function(object)
+print.matchFeat <- function(object)
 {
 	cat("Call:\n")
 	print(object$call)
 	cat("Dimensions: units = ", ncol(object$sigma),
 		", classes = ", ncol(object$mu), 
 		", variables = ", nrow(object$mu), "\n", sep = "")
-	cat("Objective value =", object$cost, "\n")
+	cat("Objective value =", object$objective, "\n")
 	invisible(NULL)	
 }
 
 
 
-summary.matchFeats <- function(object)
+summary.matchFeat <- function(object)
 {
 	cat("Call:\n")
 	print(object$call)
@@ -19,21 +19,23 @@ summary.matchFeats <- function(object)
 	cat("Dimensions: units = ", ncol(object$sigma),
 		", classes = ", ncol(object$mu), 
 		", variables = ", nrow(object$mu), "\n", sep = "")
-	cat("Objective value =", object$cost, "\n")
+	cat("Objective value =", object$objective, "\n")
 	mu <- object$mu
-	ssb.matched <- n * sum((mu-rowMeans(mu))^2)
-	ssw.matched <- n * sum(apply(object$V,3,diag))
-	tab <- matrix(c(object$ss.between.unmatched, object$ss.within.unmatched, 
-		ssb.matched, ssw.matched),2,2)
-	rownames(tab) <- c("Sum of Squares Between", "Sum of Squares Within")
-	colnames(tab) <- c("Unmatched","Matched")
-	print(tab)
+	ssb <- n * sum((mu-rowMeans(mu))^2)
+	ssw <- n * sum(apply(object$V,3,diag))
+	cat("Sum of squares between clusters =",ssb,"\n")
+	cat("Sum of squares within clusters =",ssw,"\n")
+	# tab <- matrix(c(object$ss.between.unmatched, object$ss.within.unmatched, 
+		# ssb.matched, ssw.matched),2,2)
+	# rownames(tab) <- c("Sum of Squares Between", "Sum of Squares Within")
+	# colnames(tab) <- c("Unmatched","Matched")
+	# print(tab)
 	invisible(NULL)	
 }
 
-predict.matchFeats <- function(object, newdata, unit = NULL)
+predict.matchFeat <- function(object, newdata, unit = NULL)
 {
-	stopifnot(is(object,"matchFeats"))
+	stopifnot(is(object,"matchFeat"))
 
 	## Prediction
 	if (is.element("match.gaussmix", as.character(object$call))) {

@@ -1,10 +1,9 @@
-match.bca <- function(x, unit = NULL, w = NULL, 
-	method = c("cyclical","random"), control = list())
+match.fw <- function(x, unit = NULL, w = NULL, control = list())
 {
 
 	## Preprocess input arguments: check dimensions, 
 	## reshape and recycle as needed	
-	pre <- preprocess(x=x, unit=unit, w=w)
+	pre <- matchFeat:::preprocess(x=x, unit=unit, w=w)
 	m <- pre$m; n <- pre$n; p <- pre$p
 	if (!is.null(w)) w <- pre$w
 	R <- pre$R # Cholesky decomposition of w or null
@@ -23,17 +22,11 @@ match.bca <- function(x, unit = NULL, w = NULL,
 		if (!is.null(control$equal.variance)) 
 			equal.variance <- control$equal.variance		
 	}
-	method <- match.arg(method)	
  
 	## Trivial cases 
 	if (m == 1 || n == 1 || p == 1)
-		return(trivial(x,m,n,p,w,R,equal.variance,syscall))
+		return(matchFeat:::trivial(x,m,n,p,w,R,equal.variance,syscall))
 	
-	## Sums of squares for unmatched data
- 	# mu <- rowMeans(x,dims=2)
- 	# ssw <- sum((x-as.vector(mu))^2)
- 	# ssb <- n * sum((mu-rowMeans(mu))^2)
-
 	## Rescale data if required
 	if (!is.null(w)) {
 		if (is.vector(w)) {
@@ -49,56 +42,43 @@ match.bca <- function(x, unit = NULL, w = NULL,
 	xmin <- min(x)
 	if (xmin < 0) x <- x - xmin
 
-	## Sweeping method
-	method <- match.arg(method)			
-	
+	## Change notations	
+	P <- sigma
+
 	## Initialize objective	
 	sumxP <- matrix(0,p,m)
 	for (i in 1:n)
-		sumxP <- sumxP + x[,sigma[,i],i]
+		sumxP <- sumxP + x[,P[,i],i]
 	objective <- sum(sumxP^2)
-		
-	## Define sweeping order if method = cyclical
-	if (method == "cyclical") 
-		sweep <- 1:n 
+			
+	# Search direction
+	Q <- matrix(,m,n)
 	
-	for (count in 1:maxit)
-	{
-		## Store previous objective
+	for (it in 1:maxit)
+	{	
+		# Store previous objective
 		objective.old <- objective
-		
-		## Randomize sweeping order if method = random
-		if (method == "random")
-			sweep <- sample(1:n)
 					
-		for (i in sweep)
-		{
-			sumxPi <- sumxP - x[,sigma[,i],i]  
-			sigma[,i] <- solve_LSAP(crossprod(sumxPi,x[,,i]), 
-					maximum = TRUE)
-			sumxP <- sumxPi + x[,sigma[,i],i]
-		}			
-		
-		## Periodically recalculate X1 P1 + ... + Xn Pn
-		## to contain roundoff errors
-		if (count %% 10 == 0) {
-			sumxP <- matrix(0,p,m)
-			for (i in 1:n)
-				sumxP <- sumxP + x[,sigma[,i],i]
+		# Find next candidate solution 
+		sumxQ <- matrix(0,p,m)
+		for (i in 1:n) {
+			grad <- crossprod(sumxP,x[,,i])
+			Q[,i] <- solve_LSAP(grad, maximum=TRUE)
+			sumxQ <- sumxQ + x[,Q[,i],i] 
 		}
-	
-		## Update objective 
-		objective <- sum(sumxP^2)
-		
-		## Terminate if no improvement in objective
-		if (objective <= objective.old) break
-		
-	}	
-	
+
+		# Compare to previous solution
+		objective <- sum(sumxQ^2)
+		if (objective > objective.old) {
+			P <- Q
+			sumxP <- sumxQ
+		} else break
+				
+	}
+
 	cost <- (sum(x^2) - (objective/n)) / (n-1)
 
 	## Sample means and covariances of matched vectors
-	# mu <- matrix(,p,m)
 	mu <- sumxP/n
 	V <- array(,c(p,p,m))
 	dim(x) <- c(p,m*n)
@@ -123,9 +103,9 @@ match.bca <- function(x, unit = NULL, w = NULL,
   	## Cluster assignment
  	cluster <- matrix(,m,n)
  	for (i in 1:n)
- 		cluster[sigma[,i],i] <- 1:m
+ 		cluster[P[,i],i] <- 1:m
 		
-	out <- list(sigma=sigma, cluster=cluster, 
+	out <- list(sigma=P, cluster=cluster, 
 		objective=cost, mu=mu, V=V, call=syscall)
 	class(out) <- "matchFeat"
 	return(out)

@@ -40,9 +40,9 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 	}
 	
 	## Sums of squares for unmatched data
- 	mu <- rowMeans(x,dims=2)
- 	ssw <- sum((x-as.vector(mu))^2)
- 	ssb <- n * sum((mu-rowMeans(mu))^2)
+ 	# mu <- rowMeans(x,dims=2)
+ 	# ssw <- sum((x-as.vector(mu))^2)
+ 	# ssb <- n * sum((mu-rowMeans(mu))^2)
 
 	## Ensure that data values are non-negative
 	xmin <- min(x)
@@ -117,10 +117,16 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 		}
  	}
 
-	out <- list(sigma=sigma, cost=cost, mu=mu, V=V, 
-		ss.between.unmatched=ssb, ss.within.unmatched=ssw,
-		call=syscall)
-	class(out) <- "matchFeats"
+ 	## Cluster assignment
+ 	cluster <- matrix(,m,n)
+ 	for (i in 1:n)
+ 		cluster[sigma[,i],i] <- 1:m
+
+	out <- list(sigma=sigma, cluster=cluster, 
+	objective=cost, mu=mu, V=V, call=syscall)
+	# ss.between.unmatched=ssb, 
+	# ss.within.unmatched=ssw,		
+	class(out) <- "matchFeat"
 	return(out)
 	
 }

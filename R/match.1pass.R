@@ -19,22 +19,6 @@ match.1pass <- function(x, unit = NULL, w = NULL, control = list())
 	## Trivial cases 
 	if (m == 1 || n == 1 || p == 1)
 		return(trivial(x,m,n,p,w,R,equal.variance,syscall))
-
-	# ## Trivial case p == 1 
-	# if (p == 1) {
-		# dim(x) <- c(m,n)
-		# sigma <- apply(x,2,order)
-		# x <- apply(x,2,sort)
-		# mu <- rowMeans(x)
-		# V <- rowMeans(x^2) - mu^2
-		# cost <- if (n>1) { n/(n-1) * sum(V) } else 0
-		# if (equal.variance) V <- rep(mean(V),m)
-		# out <- list(sigma=sigma, cost=cost, mu=mu,
-			# V=V, ss.between.unmatched=ssb, 
-			# ss.within.unmatched=ssw, call=syscall)
-		# class(out) <- "matchFeats"
-		# return(out)
-	# }	
 	
 	## Rescale data if required
 	if (!is.null(w)) {
@@ -48,9 +32,9 @@ match.1pass <- function(x, unit = NULL, w = NULL, control = list())
 	}
 
  	## Sums of squares for unmatched data
- 	mu <- rowMeans(x, dims=2L)
- 	ssw <- sum((x-as.vector(mu))^2)
- 	ssb <- n * sum((mu-rowMeans(mu))^2)
+ 	# mu <- rowMeans(x, dims=2L)
+ 	# ssw <- sum((x-as.vector(mu))^2)
+ 	# ssb <- n * sum((mu-rowMeans(mu))^2)
 
 	## Ensure that data are non-negative
 	xmin <- min(x)
@@ -67,16 +51,15 @@ match.1pass <- function(x, unit = NULL, w = NULL, control = list())
 	}			
 	
 	## Objective value
-	cost <- (sum(x^2) - (sum(sumxP^2)/n)) / (n-1)
+	objective <- (sum(x^2) - (sum(sumxP^2)/n)) / (n-1)
 
-	## Sample means and covariances of matched vectors
+	## Means and covariances of matched vectors
 	# mu <- matrix(,p,m)
 	mu <- sumxP / n
 	V <- array(dim=c(p,p,m))
 	dim(x) <- c(p,m*n)
 	for (l in 1:m) {
 		idx <- seq.int(0,by=m,len=n) + sigma[l,]
-		# mu[,l] <- rowMeans(x[,idx,drop=F])
 		V[,,l] <- tcrossprod(x[,idx,drop=F])/n - 
 			tcrossprod(mu[,l])	
 	}	
@@ -94,10 +77,17 @@ match.1pass <- function(x, unit = NULL, w = NULL, control = list())
 			dim(V) <- c(p,p,m)	
 		}		
  	}
+ 	
+ 	## Cluster assignment
+ 	cluster <- matrix(,m,n)
+ 	for (i in 1:n)
+ 		cluster[sigma[,i],i] <- 1:m
  		
-	out <- list(sigma=sigma, cost=cost, mu=mu, V=V, 
-		ss.between.unmatched=ssb, ss.within.unmatched=ssw,
-		call=syscall)
+	out <- list(sigma=sigma, cluster=cluster, 
+		objective=objective, 
+		mu=mu, V=V, call=syscall)
+		# ss.between.unmatched=ssb, 
+		# ss.within.unmatched=ssw,		
 	class(out) <- "matchFeats"
 	return(out)
 	

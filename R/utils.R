@@ -1,3 +1,9 @@
+#########################
+# Preprocessing function 
+# for input arguments
+#########################
+
+
 preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 {
 
@@ -103,6 +109,16 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 }
 
 
+
+
+
+
+################################
+# Function for feature matching 
+# in trivial cases
+################################
+ 
+
 trivial <- function(x,m,n,p,w,R,equal.variance,syscall)
 {
 
@@ -119,9 +135,10 @@ trivial <- function(x,m,n,p,w,R,equal.variance,syscall)
 				rowSums((x-xbar)^2) * w
 			} else { sum((R %*% (x-xbar))^2) }
 		} 		
-		out <- list(sigma=matrix(1:m,m,1), cost=0, mu=x,
-			V=array(0,c(p,p,m)), ss.between.unmatched=ssb, 
-			ss.within.unmatched=0, call=syscall)
+		out <- list(sigma=matrix(1:m,m,1), objective=0,
+			mu=x, V=array(0,c(p,p,m)), call=syscall)
+			# ss.between.unmatched=ssb, 
+			# ss.within.unmatched=0,
 
 	## Case: only one class/feature 
 	} else if (m == 1) {
@@ -135,28 +152,123 @@ trivial <- function(x,m,n,p,w,R,equal.variance,syscall)
 			} else { sum((R %*% (x-xbar))^2) }
 		} 
 		out <- list(sigma = matrix(1,1,n), cost = ssw/(n-1),
-			mu = xbar, V = array(tcrossprod(x-xbar)/n, c(p,p,1)), 
-			ss.between.unmatched = 0, ss.within.unmatched = ssw,
-			call=syscall)
+			mu = xbar, V = array(tcrossprod(x-xbar)/n, c(p,p,1)), call=syscall)
+			
+# ss.between.unmatched = 0, 
+# ss.within.unmatched = ssw,
+			
 			
 	## Case: only one variable 
 	} else {				
 		dim(x) <- c(m,n)
 		xbar <- as.vector(rowMeans(x))
 		if (is.null(w)) w <- 1
-		ssw <- sum((x-xbar)^2) * w
-		ssb <- n * sum((xbar-mean(xbar))^2)	* w			
+		# ssw <- sum((x-xbar)^2) * w
+		# ssb <- n * sum((xbar-mean(xbar))^2) * w		
 		sigma <- apply(x,2,order)
 		x <- x[cbind(as.vector(sigma),rep(1:n,each=m))]
+		dim(x) <- c(m,n)
 		mu <- rowMeans(x)
 		V <- rowMeans(x^2) - mu^2
 		cost <- n/(n-1) * sum(V) 
 		if (equal.variance) V <- rep(mean(V),m)
-		out <- list(sigma=sigma, cost=cost, mu=mu,
-			V=V, ss.between.unmatched=ssb, 
-			ss.within.unmatched=ssw, call=syscall)
+		out <- list(sigma=sigma, objective=cost, mu=mu,
+			V=V, call=syscall)
+			# ss.between.unmatched=ssb, 
+			# ss.within.unmatched=ssw,
 	}	
 
-	class(out) <- "matchFeats"	
+	class(out) <- "matchFeat"	
 	return(out)		
 }
+
+
+
+
+#####################
+# Objective function 
+# (balanced data)
+#####################
+
+
+objective.fun <- function(x, sigma = NULL, unit = NULL, w = NULL)
+{
+	## Preprocess input arguments: check dimensions, 
+	## reshape and recycle as needed	
+	pre <- preprocess(x=x, unit=unit, w=w)
+	m <- pre$m; n <- pre$n; p <- pre$p
+	if (!is.null(w))
+		{ w <- pre$w; R <- pre$R }
+	if (!is.null(pre$x)) 
+		{ x <- pre$x } else { dim(x) <- c(p,m*n) }
+	rm(pre)	
+	if (is.null(sigma)) 
+		sigma <- matrix(1:m,m,n)
+ 
+	## Rescale data if required
+	if (!is.null(w)) {
+		if (is.vector(w)) {
+			x <- sqrt(w) * x
+		} else {
+			x <- R %*% x
+		}
+	}
+
+	## Calculate cost of assignment	
+	mu <- matrix(0,p,m)
+	shift <- seq.int(0, by=m, length=n)
+	for (l in 1:m)
+		mu[,l] <- rowMeans(x[,sigma[l,]+shift,drop=FALSE])
+	objective <- (sum(x^2) - n * sum(mu^2)) / (n-1)
+	return(objective)
+	
+}
+
+
+
+
+
+#######################################
+# Objective function for general case:
+# balanced or unbalanced data
+#######################################
+
+
+objective.gen.fun <- function(x, unit, cluster)
+{
+	n <- length(unique(unit))
+	nclass <- max(cluster)
+	obj <- numeric(nclass)
+	nrmx2 <- rowSums(x^2)
+	for (k in 1:nclass) {
+		idx <- which(cluster == k)
+		nk <- length(idx)
+		if (nk > 0) 
+			obj[k] <- nk * sum(nrmx2[idx]) - 
+				sum(colSums(x[idx,,drop=FALSE])^2)
+	}
+	obj <- 2/(n*(n-1)) * sum(obj) 
+	return(obj)		
+}
+
+
+
+
+
+##############################
+# Rand index between two 
+# partitions of a set
+##############################
+
+
+Rand.index <- function(x,y)
+{
+	stopifnot(length(x) == length(y))
+	n <- length(x)
+	freq <- table(x,y)
+	nx <- rowSums(freq)
+	ny <- colSums(freq)
+	1 - sum(nx^2, ny^2,-2*freq^2) / (n * (n-1))
+	# 1 - sum(nx*(nx-1), ny*(ny-1),-2*freq * (freq-1)) / (n * (n-1))
+}
+

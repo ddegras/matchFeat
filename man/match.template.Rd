@@ -1,27 +1,26 @@
 \name{match.template}
 \alias{match.template}
 
-\title{Template-Based Method}
+\title{Template Matching}
 
 \description{
 This function solves the one-to-one feature matching problem by 
-matching the data to a pre-specified template.
+matching the data to a pre-specified set of vectors (the template).
 }
 
 \usage{
-match.template <- function(x, y = 1, unit = NULL, w = NULL, 
+match.template <- function(x, template = 1L, unit = NULL, w = NULL, 
 	method = c("hungarian","bruteforce"), equal.variance = FALSE)
 }
 
 \arguments{
 \item{x}{data: matrix of dimensions \eqn{(mn,p)} or 3D array of dimensions \eqn{(p,m,n)} with \eqn{m} = number of labels/classes, \eqn{n} = number of sample units, and \eqn{p} = number of variables)}
 
-\item{y}{template: integer (= which sample unit to take as template) or \eqn{(p,m)} matrix}
+\item{template}{integer (= which sample unit to take as template) or \eqn{(p,m)} matrix}
 
 \item{unit}{integer (=number of units) or vector mapping rows of \code{x} to sample units (length \eqn{mn}). Must be specified only if \code{x} is a matrix.}
 
-\item{w}{weights for the loss function. Can be specified as a single positive number, 
-	a \eqn{p}-vector, or a \eqn{p \times p} positive definite matrix}
+\item{w}{weights for the loss function. Can be specified as a \eqn{p}-vector of diagonal weights or as a full \eqn{p \times p} (positive definite) matrix}
 
 \item{method}{method for the linear assignment problem: \code{hungarian} algorithm or \code{bruteforce}}
 
@@ -40,25 +39,26 @@ The argument \code{w} can be specified as a vector of positive numbers (will be 
 
 \value{
 A list with fields 
-\item{sigma}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
-\item{cost}{minimum objective value}
-\item{mu}{mean vector of matched features for each class/label (\eqn{(p,m)} matrix)}
-\item{V}{covariance matrix of matched features for each class/label (\eqn{(p,p,m)} array if \code{equal.variance} is FALSE, \eqn{(p,p)} matrix otherwise}
-\item{ss.between.unmatched}{sum of squares between labels for unmatched data}
-\item{ss.within.unmatched}{sum of squares within labels for unmatched data}
+\item{sigma}{best assignement as set of permutations (\eqn{(m,n)} matrix)}
+\item{cluster}{best assignement as cluster indicators (\eqn{m*n}-vector)}
+\item{objective}{minimum objective value}
+\item{mu}{mean vector for each class/label (\eqn{(p,m)} matrix)}
+\item{V}{covariance matrix for each class/label (\eqn{(p,p,m)} array if \code{equal.variance} is FALSE, \eqn{(p,p)} matrix otherwise}
 \item{call}{function call}
 
 }
 
 \references{
-Degras and Chen (2020). One-to-one feature matching under association ambiguity.\cr 
+Degras (2020). One-to-one feature matching under association ambiguity.\cr 
 \url{https://en.wikipedia.org/wiki/Assignment_problem}\cr
 \url{https://en.wikipedia.org/wiki/Hungarian_algorithm}
 }
 
 
 \seealso{
-\code{\link{match.bca}}, \code{\link{match.gaussmix}}, \code{\link{match.kmeans}} 
+\code{\link{match.1pass}}, \code{\link{match.2x}}, 
+\code{\link{match.bca}}, \code{\link{match.gaussmix}}, 
+\code{\link{match.kmeans}} 
 }
 \examples{
 ## Generate data

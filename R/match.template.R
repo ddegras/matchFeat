@@ -1,4 +1,4 @@
-match.template <- function(x, template = 1, unit = NULL, w = NULL, 
+match.template <- function(x, template = 1L, unit = NULL, w = NULL, 
 	method = c("hungarian","bruteforce"), equal.variance = FALSE)
 {
 	## Preprocess input arguments: check dimensions, 
@@ -8,11 +8,11 @@ match.template <- function(x, template = 1, unit = NULL, w = NULL,
 	R <- pre$R # Cholesky decomposition of w or null
 	if (!is.null(pre$x)) 
 		{ x <- pre$x; dim(x) <- c(p,m,n) }
-	y <- template
-	if (length(y) == 1) { 
-		y <- x[,,y] 
+	tmpl <- template
+	if (length(tmpl) == 1) { 
+		tmpl <- x[,,tmpl] 
 	} else {
-		stopifnot(NROW(y) == p && NCOL(y) == m)	
+		stopifnot(NROW(tmpl) == p && NCOL(tmpl) == m)	
 	}
 	rm(pre)
 	syscall <- sys.call()
@@ -20,21 +20,6 @@ match.template <- function(x, template = 1, unit = NULL, w = NULL,
 	## Trivial cases 
 	if (m == 1 || n == 1 || p == 1)
 		return(trivial(x,m,n,p,w,R,equal.variance,syscall))
-	# ## Trivial case p == 1 
-	# if (p == 1) {
-		# dim(x) <- c(m,n)
-		# sigma <- apply(x,2,order)
-		# x <- apply(x,2,sort)
-		# mu <- rowMeans(x)
-		# V <- rowMeans(x^2) - mu^2
-		# cost <- n/(n-1) * sum(V)
-		# if (equal.variance) V <- rep(mean(V),m)
-		# out <- list(sigma=sigma, cost=cost, mu=mu, 
-			# V=V, ss.between.unmatched=ssb, 
-			# ss.within.unmatched=ssw, call=syscall)
-		# class(out) <- "matchFeats"
-		# return(out)
-	# }	
 	
 	## Rescale data if required
 	if (!is.null(w)) {
@@ -47,16 +32,11 @@ match.template <- function(x, template = 1, unit = NULL, w = NULL,
 		}
 	}
 
- 	## Sums of squares for unmatched data
- 	mu <- rowMeans(x,dims=2)
- 	ssw <- sum((x-as.vector(mu))^2)
- 	ssb <- n * sum((mu-rowMeans(mu))^2)
-
 	## Ensure that data and template are non-negative
-	xymin <- min(x,y)
-	if (xymin < 0) {
-		x <- x - xymin
-		y <- y - xymin }
+	xtmin <- min(x,tmpl)
+	if (xtmin < 0) {
+		x <- x - xtmin
+		tmpl <- tmpl - xtmin }
 		
 	## Assignment method
 	method <- match.arg(method)
@@ -69,13 +49,12 @@ match.template <- function(x, template = 1, unit = NULL, w = NULL,
 	sigma <- matrix(,m,n)
 	if (method == "bruteforce") {
 		for (i in 1:n)
-			sigma[,i] <- brute(x[,,i],y,perms)
+			sigma[,i] <- brute(x[,,i],tmpl,perms)
 	} else { 
 		for (i in 1:n)
-			sigma[,i] <- solve_LSAP(crossprod(y,x[,,i]), maximum = TRUE) 
+			sigma[,i] <- solve_LSAP(crossprod(tmpl,x[,,i]), maximum = TRUE) 
 	}
-			
-	
+				
 	## Sample means and covariances of matched vectors
 	mu <- matrix(,p,m)
 	V <- array(,c(p,p,m))
@@ -88,8 +67,8 @@ match.template <- function(x, template = 1, unit = NULL, w = NULL,
 			tcrossprod(mu[,l])	
 		cost[l] <- sum(diag(V[,,l]))
 	}	
-	cost <- n / (n-1) * sum(cost) # cost
-	if (xymin < 0) mu <- mu + xymin
+	objective <- sum(cost) / (n-1) # sum of within-cluster variances
+	if (xtmin < 0) mu <- mu + xtmin
 	if (equal.variance) V <- apply(V,1:2,mean)
  	if (!is.null(w)) {
  		if (is.vector(w)) {
@@ -104,9 +83,13 @@ match.template <- function(x, template = 1, unit = NULL, w = NULL,
 		}		
  	}
 
-	out <- list(sigma=sigma, cost=cost, mu=mu, V=V, 
-		ss.between.unmatched=ssb, ss.within.unmatched=ssw,
-		call=syscall)
-	class(out) <- "matchFeats"
+ 	## Cluster assignment
+ 	cluster <- matrix(,m,n)
+ 	for (i in 1:n)
+ 		cluster[sigma[,i],i] <- 1:m
+
+	out <- list(sigma=sigma, cluster=cluster, 
+		objective=objective, mu=mu, V=V, call=syscall)
+	class(out) <- "matchFeat"
 	return(out)	
 }

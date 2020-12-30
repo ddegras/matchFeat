@@ -10,7 +10,7 @@ regularize.cov <- function(V,cond)
 	p <- nrow(V)
 	eigV <- 	eigen(V,TRUE)
 	lambda <- eigV$values		
-	a <- max(lambda[1],1) / cond
+	a <- lambda[1] / cond
 	test <- (lambda < a)
 	if (any(test)) {
 		lambda[test] <- a
@@ -484,10 +484,8 @@ match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL,
  	## Check set-wise equality of feature vectors between units  	
 	test <- check.set.equality(x,n,cond)
 	if (!is.null(test)) {
-		test$ss.between.unmatched <- ssb
-		test$ss.within.unmatched <- ssw
 		test$call <- syscall
-		class(test) <- "matchFeats"
+		class(test) <- "matchFeat"
 		return(test)	
 	}
 	
@@ -509,7 +507,7 @@ match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL,
 		
 	logL.best <- -Inf
 	counter <- 0
-	max.counter <- 3
+	max.counter <- 2 # for simulations, set. back to 3 later
 	
 	for (it in 1:maxit) {
 				
@@ -581,11 +579,14 @@ match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL,
 	}
 	if (equal.variance) V.best <- V.best[,,1]
 	
-
-	out <- list(sigma=sigma, P=P.best[,1,], mu=mu.best, V=V.best, 
-		loglik=logL.best, ss.between.unmatched=ssb, 
-		ss.within.unmatched=ssw, call=syscall)
-	class(out) <- "matchFeats"
+ 	## Cluster assignment
+ 	cluster <- matrix(,m,n)
+ 	for (i in 1:n)
+ 		cluster[sigma[,i],i] <- 1:m
+ 		
+	out <- list(sigma=sigma, cluster=cluster, P=P.best[,1,], 
+		mu=mu.best, V=V.best, loglik=logL.best, call=syscall) 
+	class(out) <- "matchFeat"
 	return(out)
 	
 }

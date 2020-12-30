@@ -1,11 +1,11 @@
 \name{match.kmeans}
 \alias{match.kmeans}
 \title{
-K-Means-Like Method
+Constrained K-Means Method
 }
 \description{
 This function matches collections of feature vectors in a one-to-one fashion 
-using a K-means-like method.
+using a constrained K-means method.
 }
 \usage{
 match.kmeans(x, unit = NULL, w = NULL, method = c("hungarian", "bruteforce"), 
@@ -49,7 +49,7 @@ A  list of class \code{matchFeats} with components
 }
 
 \references{
-Degras and Chen (2020). One-to-one feature matching under association ambiguity.\cr
+Degras (2020). One-to-one feature matching under association ambiguity.\cr
 \url{https://en.wikipedia.org/wiki/K-means_clustering}\cr
 \url{https://en.wikipedia.org/wiki/Assignment_problem}\cr
 \url{https://en.wikipedia.org/wiki/Hungarian_algorithm}
@@ -57,7 +57,9 @@ Degras and Chen (2020). One-to-one feature matching under association ambiguity.
 }
 
 \seealso{
-\code{\link{match.bca}}, \code{\link{match.gaussmix}}, \code{\link{match.template}}
+\code{\link{match.1pass}}, \code{\link{match.2x}}, 
+\code{\link{match.bca}}, \code{\link{match.gaussmix}}, 
+\code{\link{match.template}}
 }
 
 \examples{
@@ -73,7 +75,7 @@ Degras and Chen (2020). One-to-one feature matching under association ambiguity.
   result <- match.kmeans(x)
 
 ## Display results 
-  result$cost # cost function
+  result$objective # cost function
   xmatched <- array(dim=dim(x)) 
   
 ## re-arranged (matched) feature vectors
