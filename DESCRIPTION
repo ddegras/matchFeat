@@ -1,6 +1,6 @@
 Package: matchFeat
 Type: Package
-Title: One-To-One Feature Matching Under Association Ambiguity 
+Title: One-To-One Feature Matching
 Version: 1.0
 Date: 2020-12-29
 Author: David Degras
