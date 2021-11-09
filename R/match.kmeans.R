@@ -39,11 +39,6 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 		}
 	}
 	
-	## Sums of squares for unmatched data
- 	# mu <- rowMeans(x,dims=2)
- 	# ssw <- sum((x-as.vector(mu))^2)
- 	# ssb <- n * sum((mu-rowMeans(mu))^2)
-
 	## Ensure that data values are non-negative
 	xmin <- min(x)
 	if (xmin < 0) x <- x - xmin
@@ -103,7 +98,7 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 			tcrossprod(mu[,l])	
 	}	
 	if (xmin < 0) mu <- mu + xmin
-	if (equal.variance) V <- apply(V,1:2,mean)
+	if (equal.variance) V <- rowMeans(V,dims=2L) # apply(V,1:2,mean)
  	if (!is.null(w)) {
  		if (is.vector(w)) {
  			mu <- mu / sqrt(w)
@@ -111,7 +106,6 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
  		} else {
  			mu <- backsolve(R,mu)
  			dim(V) <- c(p,m*p)
- 			V <- t(backsolve(R,V))
  			V <- t(backsolve(R,V))
 			dim(V) <- c(p,p,m)
 		}
@@ -124,8 +118,6 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 
 	out <- list(sigma=sigma, cluster=cluster, 
 	objective=cost, mu=mu, V=V, call=syscall)
-	# ss.between.unmatched=ssb, 
-	# ss.within.unmatched=ssw,		
 	class(out) <- "matchFeat"
 	return(out)
 	
