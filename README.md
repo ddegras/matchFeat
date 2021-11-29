@@ -5,10 +5,9 @@ Statistical methods to match feature vectors between sample units under associat
 
 To install the package in R:
 ``` 
-install.packages("clue") # run this line if you don't have package 'clue' installed yet
-install.packages("foreach") # run this line if you don't have package 'foreach' installed yet
-install.packages("devtools") # run this line if you don't have package 'devtools' installed yet
 library(devtools)  
-install_github("ddegras/matchFeat") 
+devtools::install_github("ddegras/matchFeat") 
 ```
 
+## Reference
+Degras (2021). Scalable Feature Matching Across Large Data Collections. https://arxiv.org/abs/2101.02035
