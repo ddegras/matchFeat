@@ -1,5 +1,5 @@
 importFrom(foreach,foreach)
-export(match.1pass, match.2x, match.bca, match.bca.gen, 
+export(match.rec, match.2x, match.bca, match.bca.gen, 
 match.gaussmix, match.kmeans, match.template, objective.fun,
 objective.gen.fun, Rand.index)
 S3method(print,matchFeat)

@@ -1,8 +1,8 @@
-\name{match.1pass}
-\alias{match.1pass}
+\name{match.rec}
+\alias{match.rec}
 
 \title{
-One-Pass Method
+Recursive Initialization Method
 }
 
 \description{
@@ -10,7 +10,7 @@ Bla
 }
 
 \usage{
-match.1pass(x, unit = NULL, w = NULL, control = list())
+match.rec(x, unit = NULL, w = NULL, control = list())
 }
 
 \arguments{
@@ -29,7 +29,7 @@ match.1pass(x, unit = NULL, w = NULL, control = list())
 }
 
 \value{
-A list of class \code{matchFeats} with components
+A list of class \code{matchFeat} with components
 \item{sigma}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
 \item{cost}{minimum objective value}
 \item{mu}{sample mean for each class/label (\eqn{(p,m)} matrix)}
@@ -40,8 +40,7 @@ A list of class \code{matchFeats} with components
 }
 
 \references{
-%% ~put references to the literature/web site here ~
-}
+D. Degras (2021) "Scalable Feature Matching Across Large Data Collections". https://arxiv.org/abs/2101.02035}
 
 
 
@@ -57,13 +56,13 @@ m <- length(unique(optdigits$label)) # number of classes
 n <- nrow(optdigits$x) / m # number of units
 
 ## Use function with data in matrix form
-fit1 <- match.1pass(optdigits$x, unit=n)
+fit1 <- match.rec(optdigits$x, unit=n)
 
 ## Use function with data in array form
 p <- ncol(optdigits$x)
 x <- t(optdigits$x)
 dim(x) <- c(p,m,n)
-fit2 <- match.1pass(x)
+fit2 <- match.rec(x)
 stopifnot(identical(fit1,fit2))
 }
 

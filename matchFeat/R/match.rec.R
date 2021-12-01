@@ -1,4 +1,4 @@
-match.1pass <- function(x, unit = NULL, w = NULL, control = list())
+match.rec <- function(x, unit = NULL, w = NULL, control = list())
 {
 
 	## Preprocess input arguments: check dimensions, 

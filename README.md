@@ -6,7 +6,7 @@ Statistical methods to match feature vectors between sample units under associat
 To install the package in R:
 ``` 
 library(devtools)  
-devtools::install_github("ddegras/matchFeat") 
+devtools::install_github("ddegras/matchFeat/matchFeat") 
 ```
 
 ## Reference
