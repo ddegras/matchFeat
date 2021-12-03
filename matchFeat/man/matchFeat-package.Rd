@@ -11,8 +11,8 @@
 }
 
 \details{
-This package serves to match feature vectors in a one-to-one fashion
-across large collections of datasets. This task is formulated as a multidimensional assignment problem with decomposable costs (MDADC). 
+This package serves to match feature vectors across a collection of datasets 
+in a one-to-one fashion. This task is formulated as a multidimensional assignment problem with decomposable costs (MDADC). 
 We propose fast algorithms with time complexity roughly linear in the number \eqn{n} of datasets and space complexity a small fraction of the data size. 
 
 \itemize{
