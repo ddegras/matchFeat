@@ -6,7 +6,7 @@ Block Coordinate Ascent Method
 }
 
 \description{
-This function solves the one-to-one feature matching problem by block coordinate ascent.
+This function solves the multidimensional assignment problem with decomposable costs (MDADC) by block coordinate ascent. The dissimilarity function is the squared Euclidean distance. 
 }
 
 \usage{
@@ -38,29 +38,31 @@ If \code{x} is a matrix, the rows should be sorted by increasing unit label and 
 
 The argument \code{w} can be specified as a vector of positive numbers (will be recycled to length \eqn{p} if needed) or as a positive definite matrix of size \eqn{(p,p)}.
 
-The optional argument \code{control} is a list with three fields: \code{sigma}, starting point for the optimization (\eqn{(m,n)} matrix of permutations; \code{maxit}, maximum number of iterations; and \code{equal.variance}, logical value that specifies whether the returned sample covariance matrix(-ces) \code{V} for matched features should be equal between labels/classes (TRUE) or label-specific (FALSE, default).  
+The optional argument \code{control} is a list with three fields: \code{sigma}, starting point for the optimization (\eqn{(m,n)} matrix of permutations; \code{maxit}, maximum number of iterations; and \code{equal.variance}, logical value that specifies whether the returned sample covariance matrices \code{V} for matched features should be equal between labels/classes (TRUE) or label-specific (FALSE, default).  
 }
 
 \value{
-A list of class \code{matchFeats} with components
-\item{sigma}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
-\item{cost}{minimum objective value}
-\item{mu}{sample mean for each class/label (\eqn{(p,m)} matrix)}
-\item{V}{sample covariance for each class/label (\eqn{(p,m)} matrix}
-\item{ss.between.unmatched}{sum of squares between labels for unmatched data}
-\item{ss.within.unmatched}{sum of squares within labels for unmatched data}
-\item{call}{function call}
+A list of class \code{matchFeat} with components
+\describe{
+\item{\code{sigma}}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
+\item{\code{cluster}}{associated clusters (=inverse permutations)}
+\item{\code{objective}}{minimum objective value}
+\item{\code{mu}}{sample mean for each class/label (\eqn{(p,m)} matrix)}
+\item{\code{V}}{sample covariance for each class/label (\eqn{(p,m)} matrix}
+\item{\code{call}}{function call}
+}
 }
 
 \references{
-Degras (2020). One-to-one feature matching with applications to multilevel analysis. \cr
+Degras (2021) "Scalable feature matching across large data collections". 
+\url{https://arxiv.org/abs/2101.02035} \cr
 Wright (2015). Coordinate descent algorithms. \url{https://arxiv.org/abs/1502.04759}
 }
 
 \seealso{
-\code{\link{match.1pass}}, \code{\link{match.2x}},
-\code{\link{match.bca.unbalanced}}, \code{\link{match.gaussmix}}, 
-\code{\link{match.kmeans}}, \code{\link{match.template}}
+\code{\link{match.2x}},
+\code{\link{match.bca.gen}}, \code{\link{match.gaussmix}}, 
+\code{\link{match.kmeans}}, \code{\link{match.rec}}, \code{\link{match.template}}
 }
 
 \examples{

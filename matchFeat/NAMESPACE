@@ -1,7 +1,12 @@
 importFrom(foreach,foreach)
+importFrom("methods", "is")
+importFrom("utils", "combn")
+importFrom("clue",solve_LSAP)
+
 export(match.rec, match.2x, match.bca, match.bca.gen, 
 match.gaussmix, match.kmeans, match.template, objective.fun,
 objective.gen.fun, Rand.index)
+
 S3method(print,matchFeat)
 S3method(summary,matchFeat)
 S3method(predict,matchFeat)

@@ -61,7 +61,7 @@ match.2x <- function(x, sigma=NULL, unit=NULL, w=NULL, control=list())
 			dbar <- rowMeans(dx)
 			model$Q <- crossprod(dx)
 			model$obj <- -n*crossprod(dx,dbar)
-			result <- gurobi(model,params)
+			result <- gurobi::gurobi(model,params)
 			nnz <- sum(result$x) # number of 1's in (binary) solution
 			if (result$objval > bestgain && nnz > 0 && nnz < n) {
 				cc <- result$x
@@ -111,10 +111,10 @@ match.2x <- function(x, sigma=NULL, unit=NULL, w=NULL, control=list())
  	for (i in 1:n)
  		cluster[sigma[,i],i] <- 1:m
 		
-	out <- list(sigma=sigma, cluster=cluster,
-		objective=cost, mu=mu, V=V, call=syscall)
+	out <- list(sigma = sigma, cluster = cluster,
+		objective = cost, mu = mu, V = V, call = syscall)
 		
-	class(out) <- "matchFeats"
+	class(out) <- "matchFeat"
 	return(out)
 	
 }

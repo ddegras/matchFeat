@@ -5,21 +5,30 @@
 \title{
 \packageTitle{matchFeat}
 }
+
 \description{
 \packageDescription{matchFeat}
 }
+
 \details{
+This package serves to match feature vectors in a one-to-one fashion
+across large collections of datasets. This task is formulated as a multidimensional assignment problem with decomposable costs (MDADC). 
+We propose fast algorithms with time complexity roughly linear in the number \eqn{n} of datasets and space complexity a small fraction of the data size. 
 
-
+\itemize{
+\item Initialization methods: \code{\link{match.rec}} (recursive) and \code{\link{match.template}} (template-based). \cr
+\item Main matching algorithms: \code{\link{match.bca}}, \code{\link{match.bca.gen}} (for unbalanced data), and \code{\link{match.kmeans}} (\eqn{k}-means matching). \cr
+\item Refinement methods (post-processing): \code{\link{match.2x}} (pairwise interchange) and \code{\link{match.gaussmix}} (Gaussian mixture model with permutation constraints).
+}
 }
 
 \author{
-Author: \packageAuthor{matchFeat}
+Author: \packageAuthor{matchFeat}\cr
 Maintainer: \packageMaintainer{matchFeat}
 }
 
 \references{
-Degras (2021) "Scalable Feature Matching Across Large Data Collections". 
+Degras (2021) "Scalable feature matching across large data collections". 
 \url{https://arxiv.org/abs/2101.02035} \cr
 Wright (2015). Coordinate descent algorithms.
 \url{https://arxiv.org/abs/1502.04759} \cr

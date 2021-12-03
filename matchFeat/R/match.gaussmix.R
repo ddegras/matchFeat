@@ -258,7 +258,7 @@ class.probs <- function(phi, method = c("exact","approx"),
 					logP <- logP + m * max(logP,na.rm=TRUE) - 
 						(m+1) * min(logP,na.rm=TRUE)
 					logP[is.na(logP)] <- 0					
-					sigma <- clue::solve_LSAP(logP,TRUE)			
+					sigma <- solve_LSAP(logP,TRUE)			
 					out[k,l,i] <- A[k,l] * prod(P[cbind(1:(m-1),sigma)])
 				}
 			}
@@ -462,8 +462,8 @@ match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL,
 	syscall <- sys.call()
 				
 	## Tuning parameters
-	con <- list(maxit=1e4, eps=1e-8, cond=1e8, beta=1,
-		betarate=1,	parallel=FALSE, verbose=FALSE)
+	con <- list(maxit = 1e4, eps = 1e-8, cond = 1e8, beta = 1,
+		betarate = 1, parallel = FALSE, verbose = FALSE)
 	if (length(control) > 0) {
 		name <- intersect(names(control), names(con))
 		con[name] <- control[name]	
@@ -573,7 +573,7 @@ match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL,
 			logP <- logP + m * max(logP,na.rm=TRUE) - 
 				(m+1) * min(logP,na.rm=TRUE)
 			logP[is.na(logP)] <- 0
-			sigma[,i] <- clue::solve_LSAP(logP,maximum=TRUE)  
+			sigma[,i] <- solve_LSAP(logP,maximum=TRUE)  
 			P.best[,1,i] <- P.best[cbind(1:m,sigma[,i],rep(i,m))]
 		}
 	}
@@ -584,8 +584,8 @@ match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL,
  	for (i in 1:n)
  		cluster[sigma[,i],i] <- 1:m
  		
-	out <- list(sigma=sigma, cluster=cluster, P=P.best[,1,], 
-		mu=mu.best, V=V.best, loglik=logL.best, call=syscall) 
+	out <- list(sigma = sigma, cluster = cluster, P = P.best[,1,], 
+		mu = mu.best, V = V.best, loglik = logL.best, call = syscall) 
 	class(out) <- "matchFeat"
 	return(out)
 	

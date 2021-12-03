@@ -31,11 +31,6 @@ match.rec <- function(x, unit = NULL, w = NULL, control = list())
 		}
 	}
 
- 	## Sums of squares for unmatched data
- 	# mu <- rowMeans(x, dims=2L)
- 	# ssw <- sum((x-as.vector(mu))^2)
- 	# ssb <- n * sum((mu-rowMeans(mu))^2)
-
 	## Ensure that data are non-negative
 	xmin <- min(x)
 	if (xmin < 0) x <- x - xmin
@@ -83,12 +78,10 @@ match.rec <- function(x, unit = NULL, w = NULL, control = list())
  	for (i in 1:n)
  		cluster[sigma[,i],i] <- 1:m
  		
-	out <- list(sigma=sigma, cluster=cluster, 
-		objective=objective, 
-		mu=mu, V=V, call=syscall)
-		# ss.between.unmatched=ssb, 
-		# ss.within.unmatched=ssw,		
-	class(out) <- "matchFeats"
+	out <- list(sigma = sigma, cluster = cluster, 
+		objective = objective, 
+		mu = mu, V = V, call = syscall)
+	class(out) <- "matchFeat"
 	return(out)
 	
 }

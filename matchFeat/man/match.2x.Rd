@@ -35,25 +35,30 @@ Use of this function requires to have the GUROBI software and its R package inte
 }
 
 \value{
-A list of class \code{matchFeats} with components
-\item{sigma}{best assignment as set of permutations (\eqn{(m,n)} matrix)}
-\item{cluster}{best assignment as a cluster membership vector}
-\item{objective}{minimum objective value}
-\item{mu}{mean vector for each class/label (\eqn{(p,m)} matrix)}
-\item{V}{covariance matrix for each class/label (\eqn{(p,p,m)} array)}
-\item{call}{function call}
+A list of class \code{matchFeat} with components
+\describe{
+\item{\code{sigma}}{best assignment as set of permutations (\eqn{(m,n)} matrix)}
+\item{\code{cluster}}{best assignment as a cluster membership vector}
+\item{\code{objective}}{minimum objective value}
+\item{\code{mu}}{mean vector for each class/label (\eqn{(p,m)} matrix)}
+\item{\code{V}}{covariance matrix for each class/label (\eqn{(p,p,m)} array)}
+\item{\code{call}}{function call}
+}
 }
 
 \references{
-Degras (2020). One-to-one feature matching with applications to multilevel analysis.}
+Degras (2021) "Scalable feature matching across large data collections". 
+\url{https://arxiv.org/abs/2101.02035}
+}
 
 \seealso{
-\code{\link{match.1pass}}, \code{\link{match.bca}}, 
+ \code{\link{match.bca}},  \code{\link{match.bca.gen}},
 \code{\link{match.gaussmix}}, \code{\link{match.kmeans}}, 
-\code{\link{match.template}}
+\code{\link{match.rec}}, \code{\link{match.template}}
 }
 
 \examples{
+\dontrun{
 ## Generate small example
   m <- 3  # number of classes
   n <- 10 # number of statistical units 
@@ -74,4 +79,5 @@ Degras (2020). One-to-one feature matching with applications to multilevel analy
   for (i in 1:n)
 	  xmatched[,,i] <- x[,result$sigma[,i],i]
 	
+}
 }

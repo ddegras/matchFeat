@@ -5,8 +5,7 @@
 Calculate Cost of Multidimensional Assignment
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
+Calculates the objective value in the multidimensional assignment problem with decomposable costs (MDADC). The dissimilarity function used in this problem is the squared Euclidean distance.}
 \usage{
 objective.fun(x, sigma = NULL, unit = NULL, w = NULL)
 }
@@ -26,22 +25,28 @@ permutations: matrix of dimensions \eqn{(m,n)}
 }
 
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+	Given \eqn{n} datasets having each \eqn{m} vectors of same size, 
+	say \eqn{{x_{11},...,x_{1m}},...,x_{n1},...,x_{nm}}, and permutations 
+	\eqn{\sigma_1,...,\sigma_n} of \eqn{{1,...,m}}, the function calculates 
+ \eqn{1/(n(n-1)) sum_{i,j} sum_{k} || x_{i,sigma_i(k)- x_{j,\sigma_j(k) \|^2}}} where \eqn{i} and \eqn{n} run from 1 to \eqn{n} and \eqn{k} runs from 1 to \eqn{m}. This is the objective value (1) of Degras (2021), up to the factor \eqn{1/(n(n-1))}.
 }
 
 \value{
-The assignment cost
+Objective value
 }
 
 \references{
-Degras (2020). One-to-one feature matching.
-}
+Degras (2021) "Scalable feature matching across large data collections."  
+\url{https://arxiv.org/abs/2101.02035} }
 
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
+
 
 \examples{
+data(optdigits)
+m <- 10
+n <- 100
+sigma <- matrix(1:m,m,n) # identity permutations
+objective.fun(optdigits$x, sigma, optdigits$unit)
 }
 

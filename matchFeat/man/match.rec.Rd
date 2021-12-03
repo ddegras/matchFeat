@@ -6,7 +6,7 @@ Recursive Initialization Method
 }
 
 \description{
-Bla
+RECUR1 algorithm of Bandelt et al (2004) to find starting point in the multidimensional assignment problem with decomposable costs (MDADC)  
 }
 
 \usage{
@@ -30,17 +30,19 @@ match.rec(x, unit = NULL, w = NULL, control = list())
 
 \value{
 A list of class \code{matchFeat} with components
-\item{sigma}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
-\item{cost}{minimum objective value}
-\item{mu}{sample mean for each class/label (\eqn{(p,m)} matrix)}
-\item{V}{sample covariance for each class/label (\eqn{(p,m)} matrix}
-\item{ss.between.unmatched}{sum of squares between labels for unmatched data}
-\item{ss.within.unmatched}{sum of squares within labels for unmatched data}
-\item{call}{function call}
+\describe{
+\item{\code{sigma}}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
+\item{\code{cluster}}{associated clusters (= inverse permutations)}
+\item{\code{cost}}{minimum objective value}
+\item{\code{mu}}{sample mean for each class/label (\eqn{(p,m)} matrix)}
+\item{\code{V}}{sample covariance for each class/label (\eqn{(p,m)} matrix}
+\item{\code{call}}{function call}
 }
-
+}
 \references{
-D. Degras (2021) "Scalable Feature Matching Across Large Data Collections". https://arxiv.org/abs/2101.02035}
+D. Degras (2021) "Scalable feature matching across large data collections". \url{https://arxiv.org/abs/2101.02035} \cr
+H.-J. Bandelt, A. Maas, and F. C. R. Spieksma (2004), "Local search heuristics for multi-index assignment problems with decomposable costs"
+}
 
 
 

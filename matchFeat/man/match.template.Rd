@@ -4,8 +4,7 @@
 \title{Template Matching}
 
 \description{
-This function solves the one-to-one feature matching problem by 
-matching the data to a pre-specified set of vectors (the template).
+This function solves the multidimensional assignment problem with decomposable costs (MDADC) by matching the data to a pre-specified set of vectors (the template). The dissimilarity function is the squared Euclidean distance. 
 }
 
 \usage{
@@ -38,28 +37,30 @@ The argument \code{w} can be specified as a vector of positive numbers (will be 
 }
 
 \value{
-A list with fields 
-\item{sigma}{best assignement as set of permutations (\eqn{(m,n)} matrix)}
-\item{cluster}{best assignement as cluster indicators (\eqn{m*n}-vector)}
-\item{objective}{minimum objective value}
-\item{mu}{mean vector for each class/label (\eqn{(p,m)} matrix)}
-\item{V}{covariance matrix for each class/label (\eqn{(p,p,m)} array if \code{equal.variance} is FALSE, \eqn{(p,p)} matrix otherwise}
-\item{call}{function call}
-
+A list of class \code{matchFeat} with fields 
+\describe{
+\item{\code{sigma}}{best assignement as set of permutations (\eqn{(m,n)} matrix)}
+\item{\code{cluster}}{best assignement as cluster indicators (\eqn{m*n}-vector)}
+\item{\code{objective}}{minimum objective value}
+\item{\code{mu}}{mean vector for each class/label (\eqn{(p,m)} matrix)}
+\item{\code{V}}{covariance matrix for each class/label (\eqn{(p,p,m)} array if \code{equal.variance} is FALSE, \eqn{(p,p)} matrix otherwise}
+\item{\code{call}}{function call}
+}
 }
 
 \references{
-Degras (2020). One-to-one feature matching under association ambiguity.\cr 
+Degras (2021) "Scalable feature matching across large data collections". 
+\url{https://arxiv.org/abs/2101.02035}\cr
 \url{https://en.wikipedia.org/wiki/Assignment_problem}\cr
 \url{https://en.wikipedia.org/wiki/Hungarian_algorithm}
 }
 
 
 \seealso{
-\code{\link{match.1pass}}, \code{\link{match.2x}}, 
-\code{\link{match.bca}}, \code{\link{match.gaussmix}}, 
-\code{\link{match.kmeans}} 
+ \code{\link{match.2x}}, \code{\link{match.bca}}, 
+\code{\link{match.bca.gen}}, \code{\link{match.gaussmix}}, \code{\link{match.kmeans}}, \code{\link{match.rec}}
 }
+
 \examples{
 ## Generate data
 n <- 10

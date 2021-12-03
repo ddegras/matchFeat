@@ -1,11 +1,10 @@
 \name{match.kmeans}
 \alias{match.kmeans}
 \title{
-Constrained K-Means Method
+K-Means Matching Algorithm
 }
 \description{
-This function matches collections of feature vectors in a one-to-one fashion 
-using a constrained K-means method.
+This function matches collections of feature vectors in a one-to-one fashion using a \eqn{k}-means-like method.
 }
 \usage{
 match.kmeans(x, unit = NULL, w = NULL, method = c("hungarian", "bruteforce"), 
@@ -32,24 +31,26 @@ If \code{x} is a matrix, the rows should be sorted by increasing unit label and 
 
 The argument \code{w} can be specified as a vector of positive numbers (will be recycled to length \eqn{p} if needed) or as a positive definite matrix of size \eqn{(p,p)}.
 
-The optional argument \code{control} is a list with three fields: \code{sigma}, starting point for the optimization (\eqn{(m,n)} matrix of permutations; \code{maxit}, maximum number of iterations; and \code{equal.variance}, logical value that specifies whether the returned sample covariance matrix(-ces) \code{V} for matched features should be equal between labels/classes (TRUE) or label-specific (FALSE, default). 
+The optional argument \code{control} is a list with three fields: \code{sigma}, starting point for the optimization (\eqn{(m,n)} matrix of permutations; \code{maxit}, maximum number of iterations; and \code{equal.variance}, logical value that specifies whether the returned sample covariance matrices \code{V} for matched features should be equal between labels/classes (TRUE) or label-specific (FALSE, default). 
 % The output covariance(s) \code{V} can be used as a diagnostic tool for heteroskedasticity between labels 
 }
 
 
 \value{
-A  list of class \code{matchFeats} with components
+A  list of class \code{matchFeat} with components
+\describe{
 \item{sigma}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
+\item{cluster}{associated clusters (= inverse permutations)}
 \item{cost}{minimum objective value}
 \item{mu}{sample mean for each class/label (\eqn{(p,m)} matrix)}
 \item{V}{sample covariance for each class/label (\eqn{(p,m)} matrix}
-\item{ss.between.unmatched}{sum of squares between labels for unmatched data}
-\item{ss.within.unmatched}{sum of squares within labels for unmatched data}
 \item{call}{function call}
+}
 }
 
 \references{
-Degras (2020). One-to-one feature matching under association ambiguity.\cr
+Degras (2021) "Scalable Feature Matching Across Large Data Collections". 
+\url{https://arxiv.org/abs/2101.02035} \cr
 \url{https://en.wikipedia.org/wiki/K-means_clustering}\cr
 \url{https://en.wikipedia.org/wiki/Assignment_problem}\cr
 \url{https://en.wikipedia.org/wiki/Hungarian_algorithm}
@@ -57,9 +58,9 @@ Degras (2020). One-to-one feature matching under association ambiguity.\cr
 }
 
 \seealso{
-\code{\link{match.1pass}}, \code{\link{match.2x}}, 
-\code{\link{match.bca}}, \code{\link{match.gaussmix}}, 
-\code{\link{match.template}}
+ \code{\link{match.2x}}, \code{\link{match.bca}},
+\code{\link{match.bca.gen}}, \code{\link{match.gaussmix}}, 
+\code{\link{match.rec}}, \code{\link{match.template}}
 }
 
 \examples{

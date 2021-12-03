@@ -41,7 +41,7 @@ match.template <- function(x, template = 1L, unit = NULL, w = NULL,
 	## Assignment method
 	method <- match.arg(method)
 	if (method == "bruteforce") {
-		perms <- permn(k)
+		perms <- matchFeat:::permn(k)
 		perms <- lapply(1:NROW(perms), 
 			function(i) perms[i,]) }
 		
@@ -52,7 +52,8 @@ match.template <- function(x, template = 1L, unit = NULL, w = NULL,
 			sigma[,i] <- brute(x[,,i],tmpl,perms)
 	} else { 
 		for (i in 1:n)
-			sigma[,i] <- solve_LSAP(crossprod(tmpl,x[,,i]), maximum = TRUE) 
+			sigma[,i] <- solve_LSAP(crossprod(tmpl,x[,,i]), 
+				maximum = TRUE) 
 	}
 				
 	## Sample means and covariances of matched vectors
@@ -88,8 +89,8 @@ match.template <- function(x, template = 1L, unit = NULL, w = NULL,
  	for (i in 1:n)
  		cluster[sigma[,i],i] <- 1:m
 
-	out <- list(sigma=sigma, cluster=cluster, 
-		objective=objective, mu=mu, V=V, call=syscall)
+	out <- list(sigma = sigma, cluster = cluster, 
+		objective = objective, mu = mu, V = V, call = syscall)
 	class(out) <- "matchFeat"
 	return(out)	
 }

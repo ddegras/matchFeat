@@ -1,17 +1,17 @@
-print.matchFeat <- function(object)
+print.matchFeat <- function(x, ...)
 {
 	cat("Call:\n")
-	print(object$call)
-	cat("Dimensions: units = ", ncol(object$sigma),
-		", classes = ", ncol(object$mu), 
-		", variables = ", nrow(object$mu), "\n", sep = "")
-	cat("Objective value =", object$objective, "\n")
+	print(x$call)
+	cat("Dimensions: units = ", ncol(x$sigma),
+		", classes = ", ncol(x$mu), 
+		", variables = ", nrow(x$mu), "\n", sep = "")
+	cat("Objective value =", x$objective, "\n")
 	invisible(NULL)	
 }
 
 
 
-summary.matchFeat <- function(object)
+summary.matchFeat <- function(object, ...)
 {
 	cat("Call:\n")
 	print(object$call)
@@ -25,15 +25,10 @@ summary.matchFeat <- function(object)
 	ssw <- n * sum(apply(object$V,3,diag))
 	cat("Sum of squares between clusters =",ssb,"\n")
 	cat("Sum of squares within clusters =",ssw,"\n")
-	# tab <- matrix(c(object$ss.between.unmatched, object$ss.within.unmatched, 
-		# ssb.matched, ssw.matched),2,2)
-	# rownames(tab) <- c("Sum of Squares Between", "Sum of Squares Within")
-	# colnames(tab) <- c("Unmatched","Matched")
-	# print(tab)
 	invisible(NULL)	
 }
 
-predict.matchFeat <- function(object, newdata, unit = NULL)
+predict.matchFeat <- function(object, newdata, unit = NULL, ...)
 {
 	stopifnot(is(object,"matchFeat"))
 

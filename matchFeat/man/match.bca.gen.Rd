@@ -26,18 +26,22 @@ match.bca.gen(x, unit = NULL, nclass = NULL, w = NULL, method = c("cyclical", "r
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
+
 \value{
-A list of class \code{matchFeats} with components
-\item{sigma}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
-\item{cost}{minimum objective value}
-\item{mu}{sample mean for each class/label (\eqn{(p,m)} matrix)}
-\item{V}{sample covariance for each class/label (\eqn{(p,m)} matrix}
-\item{ss.between.unmatched}{sum of squares between labels for unmatched data}
-\item{ss.within.unmatched}{sum of squares within labels for unmatched data}
-\item{call}{function call}
+A list of class \code{matchFeat} with components
+\describe{
+\item{\code{sigma}}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
+\item{\code{cluster}}{associated clusters (=inverse permutations)}
+\item{\code{cost}}{minimum objective value}
+\item{\code{mu}}{sample mean for each class/label (\eqn{(p,m)} matrix)}
+\item{\code{V}}{sample covariance for each class/label (\eqn{(p,m)} matrix}
+\item{\code{call}}{function call}
 }
+}
+
 \references{
-Degras (2020). One-to-one feature matching with applications to multilevel analysis. \cr
+Degras (2021) "Scalable feature matching across large data collections". 
+\url{https://arxiv.org/abs/2101.02035} \cr
 Wright (2015). Coordinate descent algorithms. \url{https://arxiv.org/abs/1502.04759}
 }
 
@@ -45,9 +49,9 @@ Wright (2015). Coordinate descent algorithms. \url{https://arxiv.org/abs/1502.04
 
 
 \seealso{
-\code{\link{match.1pass}}, \code{\link{match.2x}},
-\code{\link{match.bca}}, \code{\link{match.gaussmix}}, 
-\code{\link{match.kmeans}}, \code{\link{match.template}}
+\code{\link{match.2x}}, \code{\link{match.bca}}, 
+\code{\link{match.bca.gen}}, \code{\link{match.gaussmix}}, 
+\code{\link{match.kmeans}}, \code{\link{match.rec}}, \code{\link{match.template}}
 }
 
 \examples{

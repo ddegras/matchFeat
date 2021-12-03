@@ -47,7 +47,7 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 	method <- match.arg(method)
 	if (method == "bruteforce") {
 		# Generate permutations
-		perms <- permn(m)
+		perms <- matchFeat:::permn(m)
 		# Convert to list
 		perms <- lapply(1:NROW(perms), 
 			function(i) perms[i,])

@@ -22,8 +22,8 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 		# Check that 'unit' is not NULL 
 		if (is.null(unit)) 
 			stop(paste("Please provide 'x' as an array of dimensions",
-				"(p,m,n) OR provide 'x' as a matrix of dimensions (n*p,m)\n",
-				"together with the vector 'unit' (length n*p) where m,n,p",
+				"(p,m,n) OR provide 'x' as a matrix of dimensions (m*n,p)\n",
+				"together with the vector 'unit' (length m*n) where m,n,p",
 				"are the respective numbers of feature vectors, units,",
 				"and variables"))
 		unit <- as.integer(unit)

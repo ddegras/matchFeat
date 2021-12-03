@@ -1,7 +1,7 @@
 \name{match.gaussmix}
 \alias{match.gaussmix}
 
-\title{Gaussian Mixture Approach}
+\title{Gaussian Mixture Approach to One-To-One Feature Matching}
 
 \description{
 This function performs maximum likelihood estimation (MLE) for the one-to-one feature matching problem represented as a multivariate Gaussian mixture model. MLE is carried out via the EM algorithm. 
@@ -48,26 +48,32 @@ the EM algorithm stops if the relative increase in log-likelihood between two it
  algorithm progress (default=FALSE). 
 }
 
-\value{
-\item{sigma}{permutations that best match feature vectors across units (\eqn{(m,n)} matrix)}
-\item{P}{conditional probability that a feature vector is assigned to its 'true' label
+\value{A list of class \code{matchFeat} with fields
+\describe{
+\item{\code{sigma}}{permutations that best match feature vectors across units (\eqn{(m,n)} matrix)}
+\item{\code{cluster}}{associated clusters (=inverse permutations)}
+\item{\code{P}}{conditional probability that a feature vector is assigned to its 'true' label
 (\eqn{(m,n)} matrix)}
-\item{mu}{MLE of true mean vectors (\eqn{(p,m)} matrix)}
-\item{mu}{MLE of true covariance matrices (\eqn{(p,p,m)} array or \eqn{(p,p)}matrix if \code{equal.variance=TRUE})}
-\item{loglik}{Maximum value of log-likelihood}
+\item{\code{mu}}{MLE of true mean vectors (\eqn{(p,m)} matrix)}
+\item{\code{V}}{MLE of true covariance matrices (\eqn{(p,p,m)} array or \eqn{(p,p)}matrix if \code{equal.variance=TRUE})}
+\item{\code{loglik}}{Maximum value of log-likelihood}
+}
 }
 
 \references{
-Degras and Chen (2020). One-To-One Feature Matching under Association Ambiguity. 
-
+Degras (2021) "Scalable feature matching across large data collections". 
+\url{https://arxiv.org/abs/2101.02035} \cr
 `McLachlan and Krishnan (2008). The EM Algorithm and Extensions.`
 }
 
 
 \seealso{
-\code{\link{match.1pass}},\code{\link{match.2x}},
-\code{\link{match.bca}}, \code{\link{match.template}},
-\code{\link{match.kmeans}}
+\code{\link{match.2x}},
+\code{\link{match.bca}}, 
+\code{\link{match.bca.gen}},  
+\code{\link{match.kmeans}}, 
+\code{\link{match.rec}}, 
+\code{\link{match.template}}
 }
 
 \examples{
