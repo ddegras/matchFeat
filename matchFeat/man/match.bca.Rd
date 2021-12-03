@@ -10,7 +10,7 @@ This function solves the multidimensional assignment problem with decomposable c
 }
 
 \usage{
-function(x, unit = NULL, w = NULL, method = c("cyclical","random"),
+match.bca(x, unit = NULL, w = NULL, method = c("cyclical","random"), 
 	control = list())
 }
 
@@ -78,7 +78,6 @@ p <- ncol(optdigits$x)
 x <- t(optdigits$x)
 dim(x) <- c(p,m,n)
 fit2 <- match.bca(x)
-stopifnot(identical(fit1,fit2))
 
 }
 

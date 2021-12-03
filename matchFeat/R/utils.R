@@ -216,7 +216,7 @@ objective.fun <- function(x, sigma = NULL, unit = NULL, w = NULL)
 
 	## Calculate cost of assignment	
 	mu <- matrix(0,p,m)
-	shift <- seq.int(0, by=m, length=n)
+	shift <- seq.int(0, by=m, length.out=n)
 	for (l in 1:m)
 		mu[,l] <- rowMeans(x[,sigma[l,]+shift,drop=FALSE])
 	objective <- (sum(x^2) - n * sum(mu^2)) / (n-1)
@@ -237,17 +237,18 @@ objective.fun <- function(x, sigma = NULL, unit = NULL, w = NULL)
 objective.gen.fun <- function(x, unit, cluster)
 {
 	n <- length(unique(unit))
-	nclass <- max(cluster)
+	u <- unique(cluster)
+	nclass <- length(u)
 	obj <- numeric(nclass)
 	nrmx2 <- rowSums(x^2)
 	for (k in 1:nclass) {
-		idx <- which(cluster == k)
+		idx <- which(cluster == u[k])
 		nk <- length(idx)
 		if (nk > 0) 
 			obj[k] <- nk * sum(nrmx2[idx]) - 
 				sum(colSums(x[idx,,drop=FALSE])^2)
 	}
-	obj <- 2/(n*(n-1)) * sum(obj) 
+	obj <- sum(obj) / n / (n-1)
 	return(obj)		
 }
 

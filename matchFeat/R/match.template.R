@@ -41,7 +41,7 @@ match.template <- function(x, template = 1L, unit = NULL, w = NULL,
 	## Assignment method
 	method <- match.arg(method)
 	if (method == "bruteforce") {
-		perms <- matchFeat:::permn(k)
+		perms <- permn(m)
 		perms <- lapply(1:NROW(perms), 
 			function(i) perms[i,]) }
 		
@@ -62,7 +62,7 @@ match.template <- function(x, template = 1L, unit = NULL, w = NULL,
 	dim(x) <- c(p,m*n)
 	cost <- numeric(m)
 	for (l in 1:m) {
-		idx <- seq.int(0,by=m,len=n) + sigma[l,]
+		idx <- seq.int(0 ,by = m, length.out = n) + sigma[l,]
 		mu[,l] <- rowMeans(x[,idx,drop=F])
 		V[,,l] <- tcrossprod(x[,idx,drop=F])/n - 
 			tcrossprod(mu[,l])	

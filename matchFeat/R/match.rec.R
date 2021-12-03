@@ -54,7 +54,7 @@ match.rec <- function(x, unit = NULL, w = NULL, control = list())
 	V <- array(dim=c(p,p,m))
 	dim(x) <- c(p,m*n)
 	for (l in 1:m) {
-		idx <- seq.int(0,by=m,len=n) + sigma[l,]
+		idx <- seq.int(0, by = m, length.out = n) + sigma[l,]
 		V[,,l] <- tcrossprod(x[,idx,drop=F])/n - 
 			tcrossprod(mu[,l])	
 	}	

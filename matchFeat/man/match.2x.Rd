@@ -25,13 +25,11 @@ permutations: matrix of dimensions \eqn{(m,n)}
 \item{w}{weights for loss function: single positive number, 
 	\eqn{p}-vector of length, or \eqn{(p,p)} positive definite matrix}
 
-\item{method}{sweeping method for block coordinate ascent: \code{cyclical} or \code{random} (simple random sampling without replacement)}
-  
 \item{control}{tuning parameters}
 }
 
 \details{
-Use of this function requires to have the GUROBI software and its R package interface installed. Both can be downloaded from \url{https://www.gurobi.com} after obtaining a free academic license.  
+Use of this function requires to have the GUROBI software and its R interface package installed. Both can be downloaded from \url{https://www.gurobi.com} after obtaining a free academic license.  
 }
 
 \value{

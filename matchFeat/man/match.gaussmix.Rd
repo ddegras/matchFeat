@@ -76,9 +76,6 @@ Degras (2021) "Scalable feature matching across large data collections".
 \code{\link{match.template}}
 }
 
-\examples{
-
-}
 
 \keyword{models}
 \keyword{optimize}

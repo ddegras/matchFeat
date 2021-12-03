@@ -7,6 +7,7 @@ match.2x <- function(x, sigma=NULL, unit=NULL, w=NULL, control=list())
 	pre <- preprocess(x,unit)
 	m <- pre$m; n <- pre$n; p <- pre$p
 	if (!is.null(w)) w <- pre$w
+	R <- pre$R
 	if (!is.null(pre$x)) 
 		{ x <- pre$x } else { dim(x) <- c(p,m*n) }
 	rm(pre)
@@ -49,7 +50,7 @@ match.2x <- function(x, sigma=NULL, unit=NULL, w=NULL, control=list())
 	model$A <- matrix(0,1,n)
 	active <- 1:m
 	a1 <- NULL
-	shift <- seq(0,by=m,len=n)
+	shift <- seq(0,by=m,length.out=n)
 	while(length(active) > 1) {
 		a1 <- sample(setdiff(active,a1),1) 
 		# prevent choosing same candidate twice in a row
@@ -90,7 +91,7 @@ match.2x <- function(x, sigma=NULL, unit=NULL, w=NULL, control=list())
 	## Sample means and covariances of matched vectors
 	V <- array(,c(p,p,m))
 	for (l in 1:m) {
-		idx <- seq.int(0,by=m,len=n) + sigma[l,]
+		idx <- seq.int(0,by=m,length.out=n) + sigma[l,]
 		V[,,l] <- tcrossprod(x[,idx])/n - tcrossprod(mu[,l])	
 	}	
 	if (equal.variance) 

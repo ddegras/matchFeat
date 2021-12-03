@@ -247,6 +247,8 @@ class.probs <- function(phi, method = c("exact","approx"),
 			nz <- (A >= (eps0*rmax)) | (A >= matrix(eps0*cmax,m,m,TRUE))
 			if (all(rowSums(nz) == 1 & colSums(nz) == 1))
 				{ A[nz] <- 1; A[!nz] <- 0; out[,,i] <- A; next }
+			nzr <- (rowSums(A) > 0)
+			nzc <- (colSums(A) > 0)
 			if (all(!nzr)) { out[,,i] <- 1/m; next }
 			A[nzr,nzc] <- scale.rc(A[nzr,nzc,drop=F])
 			for (k in 1:m) {
@@ -468,8 +470,13 @@ match.gaussmix <- function(x, unit = NULL, mu = NULL, V = NULL,
 		name <- intersect(names(control), names(con))
 		con[name] <- control[name]	
 	}
-	for (name in names(con))
-		assign(name, con[[name]])
+	maxit <- con$maxit
+	eps <- con$eps
+	cond <- con$cond
+	beta <- con$beta
+	betarate <- con$betarate
+	parallel <- con$parallel
+	verbose <- con$verbose
 	method <- match.arg(method)
 	maxit.proj <- 1000 
 	eps.proj <- 1e-6

@@ -8,7 +8,7 @@ permn <- function(k)
 	out <- matrix(k,factk,k)
 	tmp <- permn(k-1)
 	for (i in 1:k) 
-		out[seq.int((i-1)*factkm1+1,len=factkm1),-i] <- tmp	
+		out[seq.int((i-1)*factkm1+1,length.out=factkm1),-i] <- tmp	
 	return(out)	
 }
 

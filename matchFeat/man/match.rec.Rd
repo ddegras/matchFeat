@@ -24,9 +24,7 @@ match.rec(x, unit = NULL, w = NULL, control = list())
 \item{control}{tuning parameters}
 }
 
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 
 \value{
 A list of class \code{matchFeat} with components
@@ -65,6 +63,5 @@ p <- ncol(optdigits$x)
 x <- t(optdigits$x)
 dim(x) <- c(p,m,n)
 fit2 <- match.rec(x)
-stopifnot(identical(fit1,fit2))
 }
 

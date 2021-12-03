@@ -5,16 +5,20 @@
 Block Coordinate Ascent Method for General (Balanced or Unbalanced) Data
 }
 \description{
-Solve a feature matching problem by block coordinate ascent.
+Solve a feature matching problem by block coordinate ascent
 }
+
 \usage{
-match.bca.gen(x, unit = NULL, nclass = NULL, w = NULL, method = c("cyclical", "random"), control = list())
+match.bca.gen(x, unit = NULL, nclass = NULL, w = NULL, 
+	method = c("cyclical", "random"), control = list())
 }
 
 \arguments{
 \item{x}{data matrix (rows=instances, columns=features)}
 
-\item{unit}{vector mapping rows of \code{x} to observation units}
+\item{unit}{vector of unit labels (length must equal number of rows of \code{x})}
+
+\item{nclass}{number of classes/clusters to assign the feature vectors to}
 
 \item{w}{feature weights in loss function. Can be specified as single positive number, vector, or positive definite matrix}
 
@@ -23,9 +27,8 @@ match.bca.gen(x, unit = NULL, nclass = NULL, w = NULL, method = c("cyclical", "r
 \item{control}{tuning parameters}
 
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
+
 
 \value{
 A list of class \code{matchFeat} with components
@@ -46,14 +49,10 @@ Wright (2015). Coordinate descent algorithms. \url{https://arxiv.org/abs/1502.04
 }
 
 
-
-
 \seealso{
 \code{\link{match.2x}}, \code{\link{match.bca}}, 
 \code{\link{match.bca.gen}}, \code{\link{match.gaussmix}}, 
 \code{\link{match.kmeans}}, \code{\link{match.rec}}, \code{\link{match.template}}
 }
 
-\examples{
-}
 

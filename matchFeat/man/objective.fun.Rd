@@ -39,7 +39,7 @@ Objective value
 Degras (2021) "Scalable feature matching across large data collections."  
 \url{https://arxiv.org/abs/2101.02035} }
 
-
+\seealso{\code{\link{objective.gen.fun}}}
 
 
 \examples{

@@ -47,7 +47,7 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 	method <- match.arg(method)
 	if (method == "bruteforce") {
 		# Generate permutations
-		perms <- matchFeat:::permn(m)
+		perms <- permn(m)
 		# Convert to list
 		perms <- lapply(1:NROW(perms), 
 			function(i) perms[i,])
@@ -93,7 +93,7 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
 	V <- array(,c(p,p,m))
 	dim(x) <- c(p,m*n)
 	for (l in 1:m) {
-		idx <- seq.int(0,by=m,len=n) + sigma[l,]
+		idx <- seq.int(0,by=m,length.out=n) + sigma[l,]
 		V[,,l] <- tcrossprod(x[,idx,drop=F])/n - 
 			tcrossprod(mu[,l])	
 	}	

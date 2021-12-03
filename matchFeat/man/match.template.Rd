@@ -8,7 +8,7 @@ This function solves the multidimensional assignment problem with decomposable c
 }
 
 \usage{
-match.template <- function(x, template = 1L, unit = NULL, w = NULL, 
+match.template(x, template = 1L, unit = NULL, w = NULL, 
 	method = c("hungarian","bruteforce"), equal.variance = FALSE)
 }
 
