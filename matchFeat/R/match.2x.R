@@ -1,7 +1,8 @@
 match.2x <- function(x, sigma=NULL, unit=NULL, w=NULL, control=list())
 {
-	test <- require(gurobi)
-	if (!test) stop(paste("The software and R package 'gurobi'",
+	test <- requireNamespace("gurobi", quietly = TRUE)
+	if (!test) stop(paste(
+		"The software 'gurobi' and its R interface package",
 		"are required to run the function 'match.2x'"))
 	pre <- preprocess(x,unit)
 	m <- pre$m; n <- pre$n; p <- pre$p
