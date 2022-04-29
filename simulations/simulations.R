@@ -114,21 +114,21 @@ for (n in nvals)
 		
 		# Simulate data 
 		set.seed(i)
-		sim <- simulate.digits(pca[1:m],n,k,stdev)
+		sim <- simulate.digits(pca[1:m], n, k, stdev)
 		x <- sim$x
 		label <-sim$label
 		unit <- sim$unit
 		p <- ncol(x)
 		xx <- t(x)
-		dim(xx) <- c(p,m,n)
+		dim(xx) <- c(p, m, n)
 		
 		# Starting points
 		sigma <- list(
-			id = matrix(1:m,m,n), 
-			r100 = replicate(100,rand.start(m,n)), 
+			id = matrix(1:m, m, n), 
+			r100 = replicate(100, rand.start(m, n)), 
 			rec = match.rec(xx)$sigma, 
 			hub = multihub.start(xx),
-			label = cluster2perm(label,n)) 
+			label = cluster2perm(label, n)) 
 		for (name in names(sigma)) {
 			if (name == "r100") {
 				objective.best <- Inf
