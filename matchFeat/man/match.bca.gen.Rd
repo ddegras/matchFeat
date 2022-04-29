@@ -1,9 +1,10 @@
 \name{match.bca.gen}
 \alias{match.bca.gen}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
 Block Coordinate Ascent Method for General (Balanced or Unbalanced) Data
 }
+
 \description{
 Solve a feature matching problem by block coordinate ascent
 }

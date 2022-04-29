@@ -76,6 +76,28 @@ Degras (2021) "Scalable feature matching across large data collections".
 \code{\link{match.template}}
 }
 
+\examples{
+\donttest{
+data(optdigits)
+x <- optdigits$x
+label <- optdigits$label
+
+## Randomly permute labels to make problem harder
+for (i in 1:n)
+{
+	idx <- seq.int((i-1)*m+1,i*m)
+	sigma <- sample.int(m)
+	x[idx,] <- x[idx[sigma[,i]],]
+	label[idx] <- label[idx[sigma[,i]]]
+}
+
+## Fit Gaussian mixture model
+fit <- match.gaussmix(x, unit = n)
+
+## Calculate Rand index
+Rand.index(fit$cluster,label)
+}	
+}
 
 \keyword{models}
 \keyword{optimize}

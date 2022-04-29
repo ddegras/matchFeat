@@ -33,11 +33,13 @@ Alpaydin and Kaynak (1998). Cascading Classifiers.
 \examples{
 data(optdigits)
 ## Quick visualization
+oldpar <- par(no.readonly = TRUE)
 par(mfrow=c(2,5))
 for (i in 1:10) {
 	mat <- matrix(optdigits$x[i,],8,8)
 	image(mat[,8:1], xaxt="n", yaxt="n")
 	title(optdigits$label[i])
 }
+par(oldpar)
 }
 \keyword{datasets}

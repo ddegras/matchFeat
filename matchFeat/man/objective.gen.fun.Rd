@@ -44,8 +44,16 @@ Degras (2021) "Scalable feature matching across large data collections."
 data(optdigits)
 m <- 10
 n <- 100
+
+## Balanced example: both 'objective.fun' and 'objective.gen.fun' work
 sigma <- matrix(1:m,m,n)
 cluster <- rep(1:m,n)
 objective.fun(optdigits$x, sigma, optdigits$unit)
 objective.gen.fun(optdigits$x, optdigits$unit, cluster)
+
+## Unbalanced example
+idx <- 1:999
+objective.gen.fun(optdigits$x[idx,], optdigits$unit[idx], cluster[idx])
+
+
 }

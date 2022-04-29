@@ -24,7 +24,7 @@ match.kmeans(x, unit = NULL, w = NULL, method = c("hungarian", "bruteforce"),
 }
 
 \details{
-Given a set of \eqn{n} statistical units, each having \eqn{m} unlabeled feature vectors, the one-to-one matching problem is to find a set of \eqn{n} labels that produce the best match of feature vectors across units. The objective function to minimize is the sum of (weighted) squared Euclidean distances between all pairs of feature vectors having the same label. This amounts to minimizing the sum of the within-label variances.  
+Given a set of \eqn{n} units or datasets, each having \eqn{m} unlabeled feature vectors, the one-to-one matching problem is to find a set of \eqn{n} labels that produce the best match of feature vectors across units. The objective function to minimize is the sum of (weighted) squared Euclidean distances between all pairs of feature vectors having the same label. This amounts to minimizing the sum of the within-label variances.  
 The sample means and sample covariances of the matched feature vectors are calculated as a post-processing step.  
 
 If \code{x} is a matrix, the rows should be sorted by increasing unit label and  \code{unit} should be a nondecreasing sequence of integers, for example \eqn{(1,...,1,2,...,2,...,n,...,n)} with each integer \eqn{1,...,n} replicated \eqn{m} times. 

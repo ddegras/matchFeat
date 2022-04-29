@@ -56,7 +56,7 @@ Degras (2021) "Scalable feature matching across large data collections".
 }
 
 \examples{
-\dontrun{
+\donttest{
 ## Generate small example
   m <- 3  # number of classes
   n <- 10 # number of statistical units 

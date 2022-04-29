@@ -31,9 +31,7 @@ permutations: matrix of dimensions \eqn{(m,n)}
  \eqn{1/(n(n-1)) sum_{i,j} sum_{k} || x_{i,sigma_i(k)- x_{j,\sigma_j(k) \|^2}}} where \eqn{i} and \eqn{n} run from 1 to \eqn{n} and \eqn{k} runs from 1 to \eqn{m}. This is the objective value (1) of Degras (2021), up to the factor \eqn{1/(n(n-1))}.
 }
 
-\value{
-Objective value
-}
+\value{Objective value}
 
 \references{
 Degras (2021) "Scalable feature matching across large data collections."  
