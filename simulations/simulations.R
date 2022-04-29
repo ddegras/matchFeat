@@ -43,7 +43,7 @@ glpk.flag <- require(Rglpk)
 if (!glpk.flag) warning(
 	paste("Package 'Rglpk' failed to load. Please make sure that GLPK is installed.", 
 	"GLPK can be downloaded at https://www.gnu.org/software/glpk"))
-lp.pkg <- if (gurobi.flag) "gurobi" else if ("glpk.flag") "glpk" else NULL
+lp.pkg <- if (gurobi.flag) "gurobi" else if (glpk.flag) "glpk" else NULL
 
 
 ##########################

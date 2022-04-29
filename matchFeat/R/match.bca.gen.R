@@ -20,7 +20,7 @@ match.bca.gen <- function (x, unit = NULL, cluster = NULL, w = NULL,
 	if (length(cluster) == 1) {
 		ncluster <- cluster
 		cluster[unlist(unit)] <- rep_len(1:ncluster, nrow(x))
-	} else if (length(cluster) == nrow(x))) {
+	} else if (length(cluster) == nrow(x)) {
 		ncluster <- 	length(unique(cluster))
 		if (!all(cluster %in% 1:ncluster)) 
 		stop(paste("The values in 'cluster' must be integers between 1",
