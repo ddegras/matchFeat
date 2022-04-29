@@ -1,10 +1,23 @@
-match.bca <- function(x, unit = NULL, w = NULL, 
+match.bca <- function(x, unit = NULL, ncluster = NULL, w = NULL, 
 	method = c("cyclical","random"), control = list())
 {
 
+	## Reroute function call if data are unbalanced
+	if (is.matrix(x)) {
+		if (is.null(unit))
+			stop("If 'x' is a matrix, 'unit' should also be provided")
+		freq <- table(unit)
+		if (any(freq != freq[1])) {
+			method <- match.arg(method)
+			out <- match.bca(x, unit, ncluster, w, method, control)
+			out$call <- sys.call()
+			return(out)
+		}
+	}
+	
 	## Preprocess input arguments: check dimensions, 
 	## reshape and recycle as needed	
-	pre <- preprocess(x=x, unit=unit, w=w)
+	pre <- preprocess(x = x, unit = unit, w = w)
 	m <- pre$m; n <- pre$n; p <- pre$p
 	if (!is.null(w)) w <- pre$w
 	R <- pre$R # Cholesky decomposition of w or null
@@ -29,11 +42,6 @@ match.bca <- function(x, unit = NULL, w = NULL,
 	if (m == 1 || n == 1 || p == 1)
 		return(trivial(x,m,n,p,w,R,equal.variance,syscall))
 	
-	## Sums of squares for unmatched data
- 	# mu <- rowMeans(x,dims=2)
- 	# ssw <- sum((x-as.vector(mu))^2)
- 	# ssb <- n * sum((mu-rowMeans(mu))^2)
-
 	## Rescale data if required
 	if (!is.null(w)) {
 		if (is.vector(w)) {
@@ -125,8 +133,8 @@ match.bca <- function(x, unit = NULL, w = NULL,
  	for (i in 1:n)
  		cluster[sigma[,i],i] <- 1:m
 		
-	out <- list(sigma=sigma, cluster=cluster, 
-		objective=cost, mu=mu, V=V, call=syscall)
+	out <- list(sigma = sigma, cluster = cluster, 
+		objective = cost, mu = mu, V = V, call = syscall)
 	class(out) <- "matchFeat"
 	return(out)
 	

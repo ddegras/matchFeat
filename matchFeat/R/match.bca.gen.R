@@ -1,4 +1,4 @@
-match.bca.gen <- function (x, unit = NULL, nclass = NULL, w = NULL, 
+match.bca.gen <- function (x, unit = NULL, cluster = NULL, w = NULL, 
 	method = c("cyclical", "random"), control = list()) 
 {
 	stopifnot(!is.null(unit))
@@ -8,29 +8,37 @@ match.bca.gen <- function (x, unit = NULL, nclass = NULL, w = NULL,
 		stopifnot(all(w >= 0))
 	if (!is.integer(unit)) 
 		unit <- as.integer(factor(unit))
-	if (any(diff(unit) < 0)) 
-		stop("'unit' should be a nondecreasing vector.")
 	m <- table(unit)
 	n <- length(m)
-	nfeat <- nrow(x)
-	if (is.null(nclass)) 
-		nclass <- max(m)
+	unit <- split(1:nrow(x), unit)
+	names(unit) <- NULL
+	
+	err <- paste("'cluster' must be a single integer or an",
+		"integer vector of length equal to the number of rows of 'x'")
+	if (!is.numeric(cluster)) stop(err)
+	cluster <- as.integer(cluster)
+	if (length(cluster) == 1) {
+		ncluster <- cluster
+		cluster[unlist(unit)] <- rep_len(1:ncluster, nrow(x))
+	} else if (length(cluster) == nrow(x))) {
+		ncluster <- 	length(unique(cluster))
+		if (!all(cluster %in% 1:ncluster)) 
+		stop(paste("The values in 'cluster' must be integers between 1",
+			"and the number of clusters"))	
+	} else stop(err)
+	
 	p <- ncol(x)
 	x <- t(x)
 	syscall <- sys.call()
-	start <- cumsum(c(1, m[-n]))
-	len <- pmin(m, nclass)
-	pos <- unlist(mapply(seq.int, from = start, length.out = len))
-	val <- rep_len(1:nclass, length(pos))
-	cluster <- numeric(nfeat)
-	cluster[pos] <- val
-	rm(start, len, pos, val)
-	unit <- split(1:nfeat, unit)
-	names(unit) <- NULL
+	# start <- cumsum(c(1, m[-n]))
+	# len <- pmin(m, ncluster)
+	# pos <- unlist(mapply(seq.int, from = start, length.out = len))
+	# val <- rep_len(1:ncluster, length(pos))
+	# cluster <- numeric(nrow(x))
+	# cluster[pos] <- val
+	# rm(start, len, pos, val)
 	maxit <- 1000L
 	if (is.list(control)) {
-		if (!is.null(control$sigma)) 
-			cluster <- control$sigma
 		if (!is.null(control$maxit)) 
 			maxit <- control$maxit
 	}
@@ -44,12 +52,11 @@ match.bca.gen <- function (x, unit = NULL, nclass = NULL, w = NULL,
 			x <- R %*% x
 		}
 	}
-	method <- match.arg(method)
 	nrmx2 <- colSums(x^2)
-	sumxP <- matrix(0, p, nclass)
-	sumnrmx2 <- numeric(nclass)
-	size <- integer(nclass)
-	for (k in 1:nclass) {
+	sumxP <- matrix(0, p, ncluster)
+	sumnrmx2 <- numeric(ncluster)
+	size <- integer(ncluster)
+	for (k in 1:ncluster) {
 		idx <- which(cluster == k)
 		size[k] <- length(idx)
 		if (size[k] == 0) 
@@ -75,27 +82,27 @@ match.bca.gen <- function (x, unit = NULL, nclass = NULL, w = NULL,
 			sizei[-si] <- sizei[-si] + 1L
 			sumxPi <- sumxP
 			sumxPi[, si] <- sumxPi[, si] - x[, unit[[i]][assigned]]			
- 			ai <- if (m[i] <= nclass) { sumnrmx2i } else {
+ 			ai <- if (m[i] <= ncluster) { sumnrmx2i } else {
  				sizei * sumnrmx2i - colSums(sumxPi^2) }
-			A <- matrix(ai, m[i], nclass, byrow=TRUE) -
+			A <- matrix(ai, m[i], ncluster, byrow=TRUE) -
 				2 * crossprod(x[,unit[[i]],drop=FALSE], sumxPi) + 
 				tcrossprod(nrmx2[unit[[i]]], sizei-1) 
  			if (min(A) < 0) 
 				A <- A - min(A)
 			assigned.old <- assigned
 			si.old <- si
-			if (m[i] <= nclass) {
+			if (m[i] <= ncluster) {
 				si <- solve_LSAP(A)
 			} else {
 				si <- numeric(m[i])
 				map <- solve_LSAP(t(A))
-				si[map] <- 1:nclass
+				si[map] <- 1:ncluster
 			}
 			cluster[unit[[i]]] <- si
 			assigned <- which(si > 0)
 			si <- si[assigned]
 			if (any(assigned.old != assigned) || any(si != si.old)) {
-				if (m[i] <= nclass) {
+				if (m[i] <= ncluster) {
 				  sumxP[,-si] <- sumxPi[,-si]
 				  sumxP[, si] <- sumxPi[, si] + x[, unit[[i]]]
 				}
@@ -109,7 +116,7 @@ match.bca.gen <- function (x, unit = NULL, nclass = NULL, w = NULL,
 			}
 		}
 		if (count%%10 == 0) {
-			for (k in 1:nclass) 
+			for (k in 1:ncluster) 
 				sumxP[,k] <- rowSums(x[, cluster == k, drop=FALSE])
 		}
 		objective <- 2/(n*(n-1)) * (sum(size*sumnrmx2) - sum(sumxP^2))
@@ -126,24 +133,29 @@ match.bca.gen <- function (x, unit = NULL, nclass = NULL, w = NULL,
 			x <- backsolve(R, x)
 		}
 	}
-	centers <- matrix(0, p, nclass)
-	withinss <- numeric(nclass)
-	size <- integer(nclass)
-	for (k in 1:nclass) {
+	mu <- matrix(0, p, ncluster)
+	V <- array(0, c(p, p, ncluster))
+	# withinss <- numeric(ncluster)
+	size <- integer(ncluster)
+	for (k in 1:ncluster) {
 		idx <- which(cluster == k)
 		size[k] <- length(idx)
 		if (size[k] > 0) {
-			centers[, k] <- rowMeans(x[, idx, drop = FALSE])
-			withinss[k] <- sum(x[, idx]^2) - size[k] * sum(centers[, 
-				k]^2)
+			mu[, k] <- rowMeans(x[, idx, drop = FALSE])
+			if (size[k] > 1)
+			V[,,k] <- tcrossprod(x[, idx] - mu[,k]) / size[k]
+			# withinss[k] <- sum(x[, idx]^2) - size[k] * sum(centers[, 
+				# k]^2)
 		}
 	}
-	xbar <- as.vector(centers %*% (size/sum(size)))
-	betweenss <- sum(size * colSums((centers - xbar)^2))
-	tot.withinss <- sum(withinss)
-	totss <- betweenss + tot.withinss
-	out <- list(cluster = cluster, objective = objective, centers = centers, 
-		totss = totss, withinss = withinss, tot.withinss = sum(withinss), 
-		betweenss = betweenss, size = size, iter = count, call = syscall)
+	# xbar <- as.vector(centers %*% (size/sum(size)))
+	# betweenss <- sum(size * colSums((centers - xbar)^2))
+	# tot.withinss <- sum(withinss)
+	# totss <- betweenss + tot.withinss
+	out <- list(cluster = cluster, objective = objective, 
+		mu = mu, V = V, size = size, call = syscall)
+		# totss = totss, withinss = withinss, 
+		# tot.withinss = sum(withinss), betweenss = betweenss, 
+	class(out) <- "matchFeat"
 	return(out)
 }

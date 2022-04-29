@@ -7,7 +7,8 @@
 preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 {
 
-	out <- list(x=NULL, m=NULL, n=NULL, p=NULL, mu=mu, V=V, R=NULL)	
+	out <- list(x = NULL, m = NULL, n = NULL, p = NULL, mu = mu, V = V,
+		R = NULL)	
 	
 	if (any(is.infinite(x) | is.na(x)))
 		stop(paste("Please make sure that 'x' does not contain missing",
@@ -44,7 +45,7 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 				stop(paste("Please specify 'unit' as a vector of nondecreasing",
 					"integers and sort the rows of 'x' accordingly"))
 			freq <- table(unit)
-			if (!all(diff(freq) == 0))
+			if (!all(freq == freq[1]))
 				stop(paste("Unbalanced units not supported yet.",
 					"Make sure that all unique values in 'unit'",
 					"have the same frequency"))
@@ -119,7 +120,7 @@ preprocess <- function(x, unit, mu = NULL, V = NULL, w = NULL)
 ################################
  
 
-trivial <- function(x,m,n,p,w,R,equal.variance,syscall)
+trivial <- function(x, m, n, p, w, R, equal.variance, syscall)
 {
 
 	stopifnot(m == 1 || n == 1 || p == 1)
@@ -153,18 +154,13 @@ trivial <- function(x,m,n,p,w,R,equal.variance,syscall)
 		} 
 		out <- list(sigma = matrix(1,1,n), cost = ssw/(n-1),
 			mu = xbar, V = array(tcrossprod(x-xbar)/n, c(p,p,1)), call=syscall)
-			
-# ss.between.unmatched = 0, 
-# ss.within.unmatched = ssw,
-			
+						
 			
 	## Case: only one variable 
 	} else {				
 		dim(x) <- c(m,n)
 		xbar <- as.vector(rowMeans(x))
 		if (is.null(w)) w <- 1
-		# ssw <- sum((x-xbar)^2) * w
-		# ssb <- n * sum((xbar-mean(xbar))^2) * w		
 		sigma <- apply(x,2,order)
 		x <- x[cbind(as.vector(sigma),rep(1:n,each=m))]
 		dim(x) <- c(m,n)
@@ -174,8 +170,6 @@ trivial <- function(x,m,n,p,w,R,equal.variance,syscall)
 		if (equal.variance) V <- rep(mean(V),m)
 		out <- list(sigma=sigma, objective=cost, mu=mu,
 			V=V, call=syscall)
-			# ss.between.unmatched=ssb, 
-			# ss.within.unmatched=ssw,
 	}	
 
 	class(out) <- "matchFeat"	
@@ -248,7 +242,7 @@ objective.gen.fun <- function(x, unit, cluster)
 			obj[k] <- nk * sum(nrmx2[idx]) - 
 				sum(colSums(x[idx,,drop=FALSE])^2)
 	}
-	obj <- sum(obj) / n / (n-1)
+	obj <- sum(obj) / (2 * n * (n-1))
 	return(obj)		
 }
 
