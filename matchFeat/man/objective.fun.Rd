@@ -35,7 +35,7 @@ permutations: matrix of dimensions \eqn{(m,n)}
 
 \references{
 Degras (2022) "Scalable feature matching across large data collections."  
-\url{https://doi.org/10.1080/10618600.2022.2074429}
+\doi{10.1080/10618600.2022.2074429}
  }
 
 \seealso{\code{\link{objective.gen.fun}}}
