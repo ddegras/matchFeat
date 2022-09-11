@@ -29,7 +29,7 @@ Maintainer: \packageMaintainer{matchFeat}
 
 \references{
 Degras (2022) "Scalable feature matching across large data collections."  
-\url{https://doi.org/10.1080/10618600.2022.2074429}
+\doi{10.1080/10618600.2022.2074429}
  \cr
 Wright (2015). Coordinate descent algorithms.
 \url{https://arxiv.org/abs/1502.04759} \cr
