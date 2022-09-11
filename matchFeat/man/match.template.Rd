@@ -50,8 +50,7 @@ A list of class \code{matchFeat} with fields
 
 \references{
 Degras (2022) "Scalable feature matching across large data collections."  
-\url{https://doi.org/10.1080/10618600.2022.2074429}
-\cr
+\doi{10.1080/10618600.2022.2074429}\cr
 \url{https://en.wikipedia.org/wiki/Assignment_problem}\cr
 \url{https://en.wikipedia.org/wiki/Hungarian_algorithm}
 }
