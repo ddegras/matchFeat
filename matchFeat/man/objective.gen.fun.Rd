@@ -31,7 +31,7 @@ See equation (2) in Degras (2022). This function gives the same value as \code{\
 
 \references{
 Degras (2022) "Scalable feature matching across large data collections."  
-\url{https://doi.org/10.1080/10618600.2022.2074429}
+\doi{10.1080/10618600.2022.2074429}
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
