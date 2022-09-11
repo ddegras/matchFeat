@@ -61,8 +61,9 @@ the EM algorithm stops if the relative increase in log-likelihood between two it
 }
 
 \references{
-Degras (2021) "Scalable feature matching across large data collections". 
-\url{https://arxiv.org/abs/2101.02035} \cr
+Degras (2022) "Scalable feature matching across large data collections."  
+\url{https://doi.org/10.1080/10618600.2022.2074429}
+ \cr
 `McLachlan and Krishnan (2008). The EM Algorithm and Extensions.`
 }
 

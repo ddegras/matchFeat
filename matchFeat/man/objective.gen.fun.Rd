@@ -24,14 +24,14 @@ vector of cluster labels (length should equal number of rows in \code{x})}
 }
 
 \details{
-See equation (2) in Degras (2021). This function gives the same value as \code{\link{objective.fun}} when the data are balanced.   
+See equation (2) in Degras (2022). This function gives the same value as \code{\link{objective.fun}} when the data are balanced.   
 }
 
 \value{Objective value}
 
 \references{
-Degras (2021) "Scalable feature matching across large data collections."  
-\url{https://arxiv.org/abs/2101.02035}
+Degras (2022) "Scalable feature matching across large data collections."  
+\url{https://doi.org/10.1080/10618600.2022.2074429}
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

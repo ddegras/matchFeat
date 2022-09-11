@@ -34,8 +34,9 @@ permutations: matrix of dimensions \eqn{(m,n)}
 \value{Objective value}
 
 \references{
-Degras (2021) "Scalable feature matching across large data collections."  
-\url{https://arxiv.org/abs/2101.02035} }
+Degras (2022) "Scalable feature matching across large data collections."  
+\url{https://doi.org/10.1080/10618600.2022.2074429}
+ }
 
 \seealso{\code{\link{objective.gen.fun}}}
 

@@ -10,7 +10,7 @@ Solve a feature matching problem by block coordinate ascent
 }
 
 \usage{
-match.bca.gen(x, unit = NULL, nclass = NULL, w = NULL, 
+match.bca.gen(x, unit = NULL, cluster = NULL, w = NULL, 
 	method = c("cyclical", "random"), control = list())
 }
 
@@ -19,7 +19,7 @@ match.bca.gen(x, unit = NULL, nclass = NULL, w = NULL,
 
 \item{unit}{vector of unit labels (length must equal number of rows of \code{x})}
 
-\item{nclass}{number of classes/clusters to assign the feature vectors to}
+\item{cluster}{integer specifying of classes/clusters to assign the feature vectors to OR integer vector specifiying the initial cluster assignment. }
 
 \item{w}{feature weights in loss function. Can be specified as single positive number, vector, or positive definite matrix}
 
@@ -29,23 +29,27 @@ match.bca.gen(x, unit = NULL, nclass = NULL, w = NULL,
 
 }
 
-
+\details{
+If \code{cluster} is an integer vector, it must have the same length as \code{unit} 
+and its values must range between 1 and the number of clusters. 
+}
 
 \value{
 A list of class \code{matchFeat} with components
 \describe{
-\item{\code{sigma}}{best set of permutations for feature vectors (\eqn{(m,n)} matrix)}
-\item{\code{cluster}}{associated clusters (=inverse permutations)}
-\item{\code{cost}}{minimum objective value}
-\item{\code{mu}}{sample mean for each class/label (\eqn{(p,m)} matrix)}
-\item{\code{V}}{sample covariance for each class/label (\eqn{(p,m)} matrix}
+\item{\code{cluster}}{integer vector of cluster assignments (length = \code{now(x)})}
+\item{\code{objective}}{minimum objective value}
+\item{\code{mu}}{sample mean for each cluster/class (feature-by-cluster matrix)}
+\item{\code{V}}{sample covariance for each cluster/class (feature-by-feature-by-cluster 3D array)}
+\item{\code{size}}{integer vector of cluster sizes}	
 \item{\code{call}}{function call}
 }
 }
 
 \references{
-Degras (2021) "Scalable feature matching across large data collections". 
-\url{https://arxiv.org/abs/2101.02035} \cr
+Degras (2022) "Scalable feature matching across large data collections."  
+\url{https://doi.org/10.1080/10618600.2022.2074429}
+ \cr
 Wright (2015). Coordinate descent algorithms. \url{https://arxiv.org/abs/1502.04759}
 }
 

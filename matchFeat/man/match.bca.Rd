@@ -10,8 +10,8 @@ This function solves the multidimensional assignment problem with decomposable c
 }
 
 \usage{
-match.bca(x, unit = NULL, w = NULL, method = c("cyclical","random"), 
-	control = list())
+match.bca(x, unit = NULL, w = NULL, 
+	method = c("cyclical","random"), control = list())
 }
 
 
@@ -19,7 +19,6 @@ match.bca(x, unit = NULL, w = NULL, method = c("cyclical","random"),
 \item{x}{data: matrix of dimensions \eqn{(mn,p)} or 3D array of dimensions \eqn{(p,m,n)} with \eqn{m} = number of labels/classes, \eqn{n} = number of sample units, and \eqn{p} = number of variables)}
 
 \item{unit}{integer (=number of units) or vector mapping rows of \code{x} to sample units (length \eqn{mn}). Must be specified only if \code{x} is a matrix.}
-
 \item{w}{weights for loss function: single positive number, 
 	\eqn{p}-vector of length, or \eqn{(p,p)} positive definite matrix}
 
@@ -54,8 +53,9 @@ A list of class \code{matchFeat} with components
 }
 
 \references{
-Degras (2021) "Scalable feature matching across large data collections". 
-\url{https://arxiv.org/abs/2101.02035} \cr
+Degras (2022) "Scalable feature matching across large data collections."  
+\url{https://doi.org/10.1080/10618600.2022.2074429}
+ \cr
 Wright (2015). Coordinate descent algorithms. \url{https://arxiv.org/abs/1502.04759}
 }
 

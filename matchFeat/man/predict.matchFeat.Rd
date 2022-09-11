@@ -18,7 +18,7 @@ Match New Feature Vectors To Existing Clusters}
 }
 
 \details{
-The function \code{predict.matchFeat} finds the best matching for new feature vectors relative to an existing set of cluster/class centers.  
+The function \code{predict.matchFeat} finds the best matching for new feature vectors relative to an existing set of cluster/class centers. If code{object} results from a call to \code{\link{match.gaussmix}}, the same function is used for prediction (with fixed mean vectors and covariance matrices). In other cases, the function \code{\link{match.template}} is used for prediction. 
 }
 
 \value{A list of class \code{matchFeat} with fields
@@ -38,9 +38,9 @@ The function \code{predict.matchFeat} finds the best matching for new feature ve
 
 \examples{
 data(optdigits)
-match1 <- match.bca(optdigits$x[1:900,], optdigits$unit[1:900])  
-pred <- predict(match1,optdigits$x[901:1000,], optdigits$unit[901:1000])
-pred
+train.result <- match.bca(optdigits$x[1:900,], optdigits$unit[1:900])  
+test.result <- predict(train.result, optdigits$x[901:1000,], optdigits$unit[901:1000])
+test.result
 }
 
 \keyword{predict}

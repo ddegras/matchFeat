@@ -1,18 +1,15 @@
-match.bca <- function(x, unit = NULL, ncluster = NULL, w = NULL, 
+match.bca <- function(x, unit = NULL, w = NULL, 
 	method = c("cyclical","random"), control = list())
 {
 
-	## Reroute function call if data are unbalanced
+	## Check inputs
 	if (is.matrix(x)) {
 		if (is.null(unit))
-			stop("If 'x' is a matrix, 'unit' should also be provided")
+			stop("If 'x' is a matrix, 'unit' should also be provided.")
 		freq <- table(unit)
-		if (any(freq != freq[1])) {
-			method <- match.arg(method)
-			out <- match.bca(x, unit, ncluster, w, method, control)
-			out$call <- sys.call()
-			return(out)
-		}
+		if (any(freq != freq[1])) 
+			stop(paste("The data are unbalanced.",
+				"Please use function 'match.bca.gen' instead"))
 	}
 	
 	## Preprocess input arguments: check dimensions, 

@@ -18,12 +18,16 @@ The function \code{print.matchFeat} concisely displays the information of an obj
 data range, bandwidth used in local polynomial estimation, and key information on SCB and statistical tests. 
 }
 
+\value{No return value, called for side effects}
 
 \seealso{
 \code{\link{predict.matchFeat}}, \code{\link{summary.matchFeat}}
 }
 
 \examples{
+data(optdigits)
+result <- match.bca(optdigits$x, optdigits$unit)
+print(result)
 }
 
 \keyword{print}

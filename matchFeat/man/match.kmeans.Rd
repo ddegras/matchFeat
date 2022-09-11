@@ -49,8 +49,8 @@ A  list of class \code{matchFeat} with components
 }
 
 \references{
-Degras (2021) "Scalable Feature Matching Across Large Data Collections". 
-\url{https://arxiv.org/abs/2101.02035} \cr
+Degras (2022) "Scalable feature matching across large data collections."  
+\url{https://doi.org/10.1080/10618600.2022.2074429} \cr
 \url{https://en.wikipedia.org/wiki/K-means_clustering}\cr
 \url{https://en.wikipedia.org/wiki/Assignment_problem}\cr
 \url{https://en.wikipedia.org/wiki/Hungarian_algorithm}
