@@ -1,18 +1,17 @@
 match.bca.gen <- function (x, unit = NULL, cluster = NULL, w = NULL, 
 	method = c("cyclical", "random"), control = list()) 
 {
-	stopifnot(!is.null(unit))
+	## Check and reformat input arguments
 	stopifnot(length(unit) == nrow(x))
 	stopifnot(is.null(w) || length(w) == 1 || length(w) == ncol(x))
 	if (!is.null(w)) 
 		stopifnot(all(w >= 0))
 	if (!is.integer(unit)) 
-		unit <- as.integer(factor(unit))
+		unit <- unclass(factor(unit))
 	m <- table(unit)
 	n <- length(m)
 	unit <- split(1:nrow(x), unit)
-	names(unit) <- NULL
-	
+	names(unit) <- NULL	
 	err <- paste("'cluster' must be a single integer or an",
 		"integer vector of length equal to the number of rows of 'x'")
 	if (!is.numeric(cluster)) stop(err)
@@ -21,22 +20,20 @@ match.bca.gen <- function (x, unit = NULL, cluster = NULL, w = NULL,
 		ncluster <- cluster
 		cluster[unlist(unit)] <- rep_len(1:ncluster, nrow(x))
 	} else if (length(cluster) == nrow(x)) {
-		ncluster <- 	length(unique(cluster))
+		ncluster <- length(unique(cluster))
 		if (!all(cluster %in% 1:ncluster)) 
 		stop(paste("The values in 'cluster' must be integers between 1",
-			"and the number of clusters"))	
+			"and the number of clusters"))
 	} else stop(err)
-	
+	if (ncluster < max(m))
+		stop(paste0("The number of clusters (", ncluster, ") is too small ",
+			"compared to the largest number of observations per subject (",
+			max(m), "). Please set the input 'cluster' to an integer ",
+			"at least ", max(m), " or to an integer vector with at least ", 
+			max(m), " different values."))
 	p <- ncol(x)
 	x <- t(x)
 	syscall <- sys.call()
-	# start <- cumsum(c(1, m[-n]))
-	# len <- pmin(m, ncluster)
-	# pos <- unlist(mapply(seq.int, from = start, length.out = len))
-	# val <- rep_len(1:ncluster, length(pos))
-	# cluster <- numeric(nrow(x))
-	# cluster[pos] <- val
-	# rm(start, len, pos, val)
 	maxit <- 1000L
 	if (is.list(control)) {
 		if (!is.null(control$maxit)) 

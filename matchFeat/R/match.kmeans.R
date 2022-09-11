@@ -1,10 +1,10 @@
-match.kmeans <- function(x, unit=NULL, w=NULL, 
-	method=c("hungarian","bruteforce"), control=list())
+match.kmeans <- function(x, unit = NULL, w = NULL, 
+	method=c("hungarian", "bruteforce"), control = list())
 {
 	
 	## Preprocess input arguments: check dimensions, 
 	## reshape and recycle as needed	
-	pre <- preprocess(x,unit)
+	pre <- preprocess(x, unit)
 	m <- pre$m; n <- pre$n; p <- pre$p
 	R <- pre$R # Cholesky decomposition of w or null
 	if (!is.null(pre$x)) 
@@ -116,8 +116,8 @@ match.kmeans <- function(x, unit=NULL, w=NULL,
  	for (i in 1:n)
  		cluster[sigma[,i],i] <- 1:m
 
-	out <- list(sigma=sigma, cluster=cluster, 
-	objective=cost, mu=mu, V=V, call=syscall)
+	out <- list(sigma = sigma, cluster = cluster, 
+	objective = cost, mu = mu, V = V, call = syscall)
 	class(out) <- "matchFeat"
 	return(out)
 	

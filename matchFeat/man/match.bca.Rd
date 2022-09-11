@@ -11,7 +11,7 @@ This function solves the multidimensional assignment problem with decomposable c
 
 \usage{
 match.bca(x, unit = NULL, w = NULL, 
-	method = c("cyclical","random"), control = list())
+	method = c("cyclical", "random"), control = list())
 }
 
 

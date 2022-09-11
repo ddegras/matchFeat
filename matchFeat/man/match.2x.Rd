@@ -45,8 +45,8 @@ A list of class \code{matchFeat} with components
 }
 
 \references{
-Degras (2021) "Scalable feature matching across large data collections". 
-\url{https://arxiv.org/abs/2101.02035}
+Degras (2022) "Scalable feature matching across large data collections."  
+\url{https://doi.org/10.1080/10618600.2022.2074429}
 }
 
 \seealso{
@@ -56,7 +56,7 @@ Degras (2021) "Scalable feature matching across large data collections".
 }
 
 \examples{
-\donttest{
+\dontrun{
 ## Generate small example
   m <- 3  # number of classes
   n <- 10 # number of statistical units 
