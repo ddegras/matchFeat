@@ -20,7 +20,7 @@ match.kmeans(x, unit = NULL, w = NULL, method = c("hungarian", "bruteforce"),
 
 \item{method}{method for linear assignment problem: \code{hungarian} algorithm or \code{bruteforce}}
 
-\item{control}{optional tuning parameters}
+\item{control}{optional list of tuning parameters}
 }
 
 \details{
@@ -50,7 +50,7 @@ A  list of class \code{matchFeat} with components
 
 \references{
 Degras (2022) "Scalable feature matching across large data collections."  
-\url{https://doi.org/10.1080/10618600.2022.2074429} \cr
+\doi{10.1080/10618600.2022.2074429} \cr
 \url{https://en.wikipedia.org/wiki/K-means_clustering}\cr
 \url{https://en.wikipedia.org/wiki/Assignment_problem}\cr
 \url{https://en.wikipedia.org/wiki/Hungarian_algorithm}
