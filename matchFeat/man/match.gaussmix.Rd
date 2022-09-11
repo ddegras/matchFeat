@@ -62,8 +62,7 @@ the EM algorithm stops if the relative increase in log-likelihood between two it
 
 \references{
 Degras (2022) "Scalable feature matching across large data collections."  
-\url{https://doi.org/10.1080/10618600.2022.2074429}
- \cr
+\doi{10.1080/10618600.2022.2074429} \cr
 `McLachlan and Krishnan (2008). The EM Algorithm and Extensions.`
 }
 
@@ -82,14 +81,16 @@ Degras (2022) "Scalable feature matching across large data collections."
 data(optdigits)
 x <- optdigits$x
 label <- optdigits$label
+m <- length(unique(label))
+n <- length(unique(optdigits$unit))
 
 ## Randomly permute labels to make problem harder
 for (i in 1:n)
 {
-	idx <- seq.int((i-1)*m+1,i*m)
+	idx <- seq.int((i-1) * m + 1, i * m)
 	sigma <- sample.int(m)
-	x[idx,] <- x[idx[sigma[,i]],]
-	label[idx] <- label[idx[sigma[,i]]]
+	x[idx,] <- x[idx[sigma],]
+	label[idx] <- label[idx[sigma]]
 }
 
 ## Fit Gaussian mixture model
