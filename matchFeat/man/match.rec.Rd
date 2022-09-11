@@ -39,9 +39,8 @@ A list of class \code{matchFeat} with components
 }
 \references{
 Degras (2022) "Scalable feature matching across large data collections."  
-\url{https://doi.org/10.1080/10618600.2022.2074429}
- \cr
-H.-J. Bandelt, A. Maas, and F. C. R. Spieksma (2004), "Local search heuristics for multi-index assignment problems with decomposable costs"
+\doi{10.1080/10618600.2022.2074429} \cr
+Bandelt, Maas, and Spieksma (2004), "Local search heuristics for multi-index assignment problems with decomposable costs." \doi{10.1057/palgrave.jors.2601723}
 }
 
 
