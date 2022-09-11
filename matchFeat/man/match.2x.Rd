@@ -46,7 +46,7 @@ A list of class \code{matchFeat} with components
 
 \references{
 Degras (2022) "Scalable feature matching across large data collections."  
-\url{https://doi.org/10.1080/10618600.2022.2074429}
+\doi{10.1080/10618600.2022.2074429}
 }
 
 \seealso{
