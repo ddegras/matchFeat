@@ -56,7 +56,7 @@ Degras (2022) "Scalable feature matching across large data collections."
 }
 
 \examples{
-\dontrun{
+if (require(gurobi)) {
 ## Generate small example
   m <- 3  # number of classes
   n <- 10 # number of statistical units 
